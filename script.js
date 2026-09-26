@@ -544,15 +544,347 @@
   }
 
   function finishLetterTyping() {
-    continueStoryBtn.hidden = false;
-    requestAnimationFrame(function () {
-      continueStoryBtn.classList.add('is-shown');
-    });
+    showLetterExtras();
   }
 
   if (continueStoryBtn) {
     continueStoryBtn.addEventListener('click', goToStory);
   }
+
+
+  // ——— Post-letter extras: timer, reasons, scratch vouchers ———
+  const TOGETHER_SINCE = new Date(2025, 8, 28, 0, 0, 0); // 28.09.2025 (month is 0-indexed)
+
+  const LOVE_REASONS = [
+    'את החברה הכי טובה שלי בעולם, שאפשר לסמוך עליה בעיניים עצומות.',
+    'את הכי אמינה ונאמנה לי שיש, תמיד שם בשבילי.',
+    'את האמא הכי טובה בעולם, עם הלב הכי ענקי שיש.',
+    'אני יודע שאת תעזרי לי בכל דבר שרק אבקש, בלי להסס.',
+    'את מעריכה אותי ואת כל מה שאנחנו בונים יחד.',
+    'בגלל החיוך המושלם שלך שמריץ לי את הלב בכל פעם מחדש.',
+    'כי אין עוד שותפה כמוך לשיחות עומק על החיים ועל איחוד הצלה.',
+    'בגלל הצחוק המשחרר והאמיתי שלך שגורם לי להתאהב מחדש.',
+  ];
+
+  const VOUCHERS = [
+    { id: 'v1', text: 'ערב יין לבן מפנק במאזדה השחורה (או בבית)' },
+    { id: 'v2', text: 'ארוחת ערב מושקעת לבחירתך מעשה ידי' },
+    { id: 'v3', text: 'פטור מלא מנקיונות ומטלות ליומיים' },
+    { id: 'v4', text: 'יום כיף מפנק ורגוע רק שנינו' },
+  ];
+
+  const LS_VOUCHER = 'avital_voucher_v1';
+
+  const letterExtras = document.getElementById('letter-extras');
+  const reasonCard = document.getElementById('reason-card');
+  const reasonText = document.getElementById('reason-text');
+  const reasonBtn = document.getElementById('reason-btn');
+  const vouchersGrid = document.getElementById('vouchers-grid');
+  const voucherLockMsg = document.getElementById('voucher-lock-msg');
+
+  let timerInterval = null;
+  let lastReasonIndex = -1;
+
+  function pad2(n) {
+    return String(n).padStart(2, '0');
+  }
+
+  function updateTogetherTimer() {
+    const now = new Date();
+    let diff = Math.max(0, now - TOGETHER_SINCE);
+    const days = Math.floor(diff / 86400000);
+    diff -= days * 86400000;
+    const hours = Math.floor(diff / 3600000);
+    diff -= hours * 3600000;
+    const mins = Math.floor(diff / 60000);
+    diff -= mins * 60000;
+    const secs = Math.floor(diff / 1000);
+
+    const d = document.getElementById('tc-days');
+    const h = document.getElementById('tc-hours');
+    const m = document.getElementById('tc-mins');
+    const s = document.getElementById('tc-secs');
+    if (d) d.textContent = String(days);
+    if (h) h.textContent = pad2(hours);
+    if (m) m.textContent = pad2(mins);
+    if (s) s.textContent = pad2(secs);
+  }
+
+  function startTogetherTimer() {
+    updateTogetherTimer();
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(updateTogetherTimer, 1000);
+  }
+
+  function showLetterExtras() {
+    if (!letterExtras) return;
+    letterExtras.hidden = false;
+    void letterExtras.offsetWidth;
+    letterExtras.classList.add('is-visible');
+    startTogetherTimer();
+    initReasons();
+
+    // Wait a frame so voucher cards have layout size for canvas
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        initVouchers();
+      });
+    });
+
+    if (continueStoryBtn) {
+      continueStoryBtn.hidden = false;
+      requestAnimationFrame(function () {
+        continueStoryBtn.classList.add('is-shown');
+      });
+    }
+  }
+
+  function initReasons() {
+    if (!reasonBtn || reasonBtn.dataset.bound) return;
+    reasonBtn.dataset.bound = '1';
+    reasonBtn.addEventListener('click', function () {
+      let idx = Math.floor(Math.random() * LOVE_REASONS.length);
+      if (LOVE_REASONS.length > 1) {
+        while (idx === lastReasonIndex) {
+          idx = Math.floor(Math.random() * LOVE_REASONS.length);
+        }
+      }
+      lastReasonIndex = idx;
+      reasonCard.classList.add('is-flipping');
+      window.setTimeout(function () {
+        reasonText.textContent = LOVE_REASONS[idx];
+        reasonText.classList.remove('reason-placeholder');
+        reasonCard.classList.remove('is-flipping');
+      }, 280);
+    });
+  }
+
+  function readVoucherState() {
+    try {
+      const raw = localStorage.getItem(LS_VOUCHER);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function writeVoucherState(state) {
+    try {
+      localStorage.setItem(LS_VOUCHER, JSON.stringify(state));
+    } catch (e) { /* ignore quota */ }
+  }
+
+  function initVouchers() {
+    if (!vouchersGrid || vouchersGrid.dataset.ready) return;
+    vouchersGrid.dataset.ready = '1';
+
+    const saved = readVoucherState();
+
+    VOUCHERS.forEach(function (v, index) {
+      const card = document.createElement('div');
+      card.className = 'voucher-card';
+      card.dataset.id = v.id;
+
+      const prize = document.createElement('div');
+      prize.className = 'voucher-prize';
+      prize.innerHTML =
+        '<span class="voucher-prize-label">שובר ' + (index + 1) + '</span>' +
+        '<p class="voucher-prize-text"></p>';
+      prize.querySelector('.voucher-prize-text').textContent = v.text;
+
+      const statusBtn = document.createElement('button');
+      statusBtn.type = 'button';
+      statusBtn.className = 'voucher-status-btn';
+      statusBtn.hidden = true;
+      statusBtn.textContent = 'טרם מומש ⏳';
+      prize.appendChild(statusBtn);
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'voucher-scratch';
+      canvas.setAttribute('aria-label', 'גרדי כדי לחשוף את השובר');
+
+      const hint = document.createElement('div');
+      hint.className = 'voucher-hint';
+      hint.innerHTML = '<span>🎁 גרדי כאן</span><small>שובר מס׳ ' + (index + 1) + '</small>';
+
+      card.appendChild(prize);
+      card.appendChild(canvas);
+      card.appendChild(hint);
+      vouchersGrid.appendChild(card);
+
+      setupScratchCard(card, canvas, hint, statusBtn, v, saved);
+    });
+
+    if (saved && saved.id) {
+      if (voucherLockMsg) voucherLockMsg.hidden = false;
+    }
+  }
+
+  function setupScratchCard(card, canvas, hint, statusBtn, voucher, saved) {
+    const ctx = canvas.getContext('2d');
+    let scratching = false;
+    let revealed = false;
+
+    function resizeCanvas() {
+      const rect = card.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!revealed) paintCover(rect.width, rect.height);
+    }
+
+    function paintCover(w, h) {
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, '#E8D5A3');
+      grad.addColorStop(0.45, '#D4AF37');
+      grad.addColorStop(1, '#B76E79');
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // subtle shimmer pattern
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      for (let i = -h; i < w + h; i += 14) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i + 8, 0);
+        ctx.lineTo(i - h + 8, h);
+        ctx.lineTo(i - h, h);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function scratchAt(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function clearedRatio() {
+      const w = canvas.width;
+      const h = canvas.height;
+      if (!w || !h) return 0;
+      const data = ctx.getImageData(0, 0, w, h).data;
+      let clear = 0;
+      const step = 4 * 8; // sample every 8px
+      for (let i = 3; i < data.length; i += step) {
+        if (data[i] < 128) clear += 1;
+      }
+      const samples = Math.ceil(data.length / step);
+      return clear / samples;
+    }
+
+    function revealCard(redeemed) {
+      if (revealed) return;
+      revealed = true;
+      card.classList.add('is-revealed', 'is-chosen');
+      canvas.classList.add('is-done');
+      hint.style.opacity = '0';
+      statusBtn.hidden = false;
+      setRedeemedUI(!!redeemed);
+      writeVoucherState({ id: voucher.id, redeemed: !!redeemed, at: Date.now() });
+      lockOtherVouchers(voucher.id);
+      if (voucherLockMsg) voucherLockMsg.hidden = false;
+    }
+
+    function setRedeemedUI(redeemed) {
+      if (redeemed) {
+        statusBtn.textContent = 'מומש בהצלחה ✅';
+        statusBtn.classList.add('is-redeemed');
+      } else {
+        statusBtn.textContent = 'טרם מומש ⏳';
+        statusBtn.classList.remove('is-redeemed');
+      }
+    }
+
+    function lockOtherVouchers(chosenId) {
+      vouchersGrid.querySelectorAll('.voucher-card').forEach(function (c) {
+        if (c.dataset.id !== chosenId) {
+          c.classList.add('is-disabled');
+        }
+      });
+    }
+
+    function canScratch() {
+      const state = readVoucherState();
+      if (!state) return true;
+      return state.id === voucher.id;
+    }
+
+    statusBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const state = readVoucherState();
+      if (!state || state.id !== voucher.id) return;
+      const next = !state.redeemed;
+      writeVoucherState({ id: voucher.id, redeemed: next, at: Date.now() });
+      setRedeemedUI(next);
+    });
+
+    // Restore from localStorage
+    if (saved && saved.id === voucher.id) {
+      revealCard(!!saved.redeemed);
+      // fully clear canvas
+      const rect = card.getBoundingClientRect();
+      resizeCanvas();
+      ctx.clearRect(0, 0, rect.width || canvas.width, rect.height || canvas.height);
+      canvas.classList.add('is-done');
+    } else if (saved && saved.id !== voucher.id) {
+      card.classList.add('is-disabled');
+      resizeCanvas();
+    } else {
+      resizeCanvas();
+    }
+
+    function onStart(e) {
+      if (revealed || !canScratch()) return;
+      // If another card already chosen somehow
+      const state = readVoucherState();
+      if (state && state.id !== voucher.id) return;
+      scratching = true;
+      card.classList.add('is-scratching');
+      const point = e.touches ? e.touches[0] : e;
+      scratchAt(point.clientX, point.clientY);
+      e.preventDefault();
+    }
+
+    function onMove(e) {
+      if (!scratching || revealed) return;
+      const point = e.touches ? e.touches[0] : e;
+      scratchAt(point.clientX, point.clientY);
+      if (clearedRatio() > 0.45) {
+        revealCard(false);
+        scratching = false;
+      }
+      e.preventDefault();
+    }
+
+    function onEnd() {
+      scratching = false;
+      if (!revealed && clearedRatio() > 0.45) {
+        revealCard(false);
+      }
+    }
+
+    canvas.addEventListener('mousedown', onStart);
+    canvas.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
+    canvas.addEventListener('touchstart', onStart, { passive: false });
+    canvas.addEventListener('touchmove', onMove, { passive: false });
+    canvas.addEventListener('touchend', onEnd);
+
+    window.addEventListener('resize', function () {
+      if (!revealed) resizeCanvas();
+    });
+  }
+
 
   function goToStory() {
     letterSection.classList.remove('is-entering');

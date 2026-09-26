@@ -169,11 +169,69 @@
           <span class="ornament-diamond"></span>
           <span class="ornament-line"></span>
         </div>
+      </article>
+
+      <!-- Post-letter extras (shown after letter opens) -->
+      <div id="letter-extras" class="letter-extras" hidden>
+        <!-- 1. Live Time Counter -->
+        <section class="extra-block glass-soft reveal-extra" aria-label="כמה זמן אנחנו יחד">
+          <p class="extra-eyebrow">מאז הרגע הראשון</p>
+          <h3 class="extra-title font-serif">כמה זמן אנחנו יחד</h3>
+          <div class="time-counter" id="time-counter" dir="ltr">
+            <div class="time-unit">
+              <span class="time-value" id="tc-days">0</span>
+              <span class="time-label">ימים</span>
+            </div>
+            <span class="time-sep" aria-hidden="true">:</span>
+            <div class="time-unit">
+              <span class="time-value" id="tc-hours">00</span>
+              <span class="time-label">שעות</span>
+            </div>
+            <span class="time-sep" aria-hidden="true">:</span>
+            <div class="time-unit">
+              <span class="time-value" id="tc-mins">00</span>
+              <span class="time-label">דקות</span>
+            </div>
+            <span class="time-sep" aria-hidden="true">:</span>
+            <div class="time-unit">
+              <span class="time-value" id="tc-secs">00</span>
+              <span class="time-label">שניות</span>
+            </div>
+          </div>
+          <p class="extra-sub">וממשיכים לספור כל שנייה בכיף... ❤</p>
+        </section>
+
+        <!-- 2. Reasons Wheel / Random Card -->
+        <section class="extra-block glass-soft reveal-extra" aria-label="גלגל הסיבות">
+          <p class="extra-eyebrow">רק בשבילך</p>
+          <h3 class="extra-title font-serif">גלגל הסיבות שאני אוהב אותך</h3>
+          <div class="reason-stage">
+            <div class="reason-card" id="reason-card" aria-live="polite">
+              <p class="reason-placeholder" id="reason-text">לחצי על הכפתור וגלי סיבה...</p>
+            </div>
+            <button type="button" class="reason-btn" id="reason-btn">
+              <span class="btn-shimmer" aria-hidden="true"></span>
+              <span>לחצי לסיבה נוספת...</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- 3. Scratch Vouchers -->
+        <section class="extra-block glass-soft reveal-extra" aria-label="שוברים מיוחדים">
+          <p class="extra-eyebrow">מתנה אחת</p>
+          <h3 class="extra-title font-serif">שוברים מיוחדים בשבילך 🎁</h3>
+          <p class="extra-sub vouchers-intro">בחרי שובר אחד, גרדי אותו וצלמי לי מסך כדי לממש!</p>
+          <p class="voucher-lock-msg" id="voucher-lock-msg" hidden>כבר בחרת שובר — שמור עליו היטב ✨</p>
+          <div class="vouchers-grid" id="vouchers-grid">
+            <!-- filled by JS -->
+          </div>
+        </section>
+
         <button type="button" class="continue-story-btn" id="continue-story-btn" hidden>
           <span class="btn-shimmer" aria-hidden="true"></span>
           <span>המשך לסיפור שלנו</span>
         </button>
-      </article>
+      </div>
     </div>
 
     <div id="letter-confetti" class="letter-confetti" aria-hidden="true"></div>

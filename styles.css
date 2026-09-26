@@ -1814,9 +1814,7 @@ body.is-locked {
   margin-top: 0.5rem;
 }
 
-.love-letter .continue-story-btn {
-  display: none !important;
-}
+/* continue button visible inside letter */
 
 
 /* ---------- Personal Dashboard ---------- */
@@ -2476,6 +2474,291 @@ body.has-app-nav.is-unlocked {
   font-size: 0.88rem;
   font-weight: 500;
   color: var(--champagne-soft);
+}
+
+
+/* ---------- Stage flow & overlap fixes ---------- */
+
+.section-screen,
+.letter-section,
+.quiz-section,
+.login-section,
+.main-hub,
+.hub-panel,
+.story-section,
+.extra-block {
+  position: relative;
+  z-index: 2;
+}
+
+.letter-section,
+.quiz-section,
+#login-section {
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.letter-section.is-journey,
+.letter-section.is-letter-only {
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2rem 1.25rem 3rem;
+  overflow: auto;
+}
+
+.letter-section .letter-scene {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  background: transparent;
+}
+
+.love-letter {
+  position: relative;
+  z-index: 5;
+  background: rgba(15, 23, 42, 0.96) !important;
+  isolation: isolate;
+}
+
+.love-letter .continue-story-btn,
+.letter-continue-btn {
+  display: inline-flex !important;
+  margin-top: 1.5rem;
+}
+
+.love-letter .continue-story-btn[hidden],
+.letter-continue-btn[hidden] {
+  display: none !important;
+}
+
+/* Stage 4 hub */
+.main-hub {
+  position: relative;
+  z-index: 2;
+  background: rgba(15, 23, 42, 0.95);
+  padding: 1.25rem 1rem 4rem;
+  min-height: 100vh;
+}
+
+.main-hub[hidden] {
+  display: none !important;
+}
+
+.main-hub.is-visible {
+  display: block !important;
+  animation: quiz-enter 0.7s var(--ease-out-expo) both;
+}
+
+.hub-stack {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.hub-stack > .story-section,
+.hub-stack > .extra-block,
+.hub-stack > .hub-panel {
+  background: rgba(15, 23, 42, 0.92);
+  border-radius: 1.15rem;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.hub-stack .story-section {
+  min-height: auto !important;
+  opacity: 1 !important;
+  transform: none !important;
+  display: block !important;
+}
+
+.hub-stack .story-hero {
+  min-height: auto;
+  padding: 1.5rem 0 2rem;
+}
+
+.hub-panel {
+  text-align: center;
+}
+
+/* Nav only in stage 4 */
+.app-nav {
+  z-index: 60;
+}
+
+body.stage-letter .app-nav {
+  display: none !important;
+}
+
+body.stage-hub.has-app-nav {
+  padding-top: 3.35rem;
+}
+
+body.stage-hub {
+  overflow-y: auto;
+  height: auto;
+  background: #0b1220;
+}
+
+/* Prevent particle/ambient bleed over text */
+#particles {
+  z-index: 0;
+  opacity: 0.55;
+}
+
+.ambient {
+  z-index: 0;
+  opacity: 0.28;
+}
+
+.modal-overlay {
+  z-index: 80;
+}
+
+.success-splash,
+.quiz-celebrate {
+  z-index: 70;
+}
+
+
+/* ---------- Story personal photo frame ---------- */
+
+.timeline-media--photo {
+  width: 100%;
+}
+
+.story-photo-frame {
+  margin: 0;
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: rgba(7, 11, 20, 0.6);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 0 28px rgba(212, 175, 55, 0.28),
+    0 0 48px rgba(183, 110, 121, 0.18),
+    0 16px 36px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateY(14px) scale(0.97);
+  animation: photo-frame-in 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+@keyframes photo-frame-in {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.story-photo-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 2px rgba(232, 213, 163, 0.35);
+  z-index: 2;
+}
+
+.story-photo-frame::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(232, 213, 163, 0.55),
+    transparent 40%,
+    transparent 60%,
+    rgba(183, 110, 121, 0.35)
+  );
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
+  animation: photo-glow 4s ease-in-out infinite alternate;
+}
+
+@keyframes photo-glow {
+  from { opacity: 0.32; }
+  to { opacity: 0.68; }
+}
+
+.story-photo {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.story-photo-frame:hover .story-photo {
+  transform: scale(1.04);
+}
+
+.story-photo-caption {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.6rem 0.75rem 0.65rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: #f5efe6;
+  text-align: center;
+  background: linear-gradient(to top, rgba(7, 11, 20, 0.85), transparent);
+}
+
+.timeline-card:has(.timeline-media--photo) {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 560px) {
+  .timeline-card:has(.timeline-media--photo) {
+    grid-template-columns: minmax(160px, 42%) 1fr;
+    align-items: center;
+  }
+
+  .story-photo {
+    aspect-ratio: 3 / 4;
+    min-height: 200px;
+    max-height: 280px;
+  }
+}
+
+@media (min-width: 768px) {
+  .timeline-card:has(.timeline-media--photo) {
+    grid-template-columns: minmax(200px, 38%) 1fr;
+  }
+
+  .story-photo {
+    max-height: 320px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-photo-frame {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .story-photo-frame::after {
+    animation: none;
+  }
 }
 
 /* ---------- Reduced motion ---------- */

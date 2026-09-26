@@ -428,10 +428,15 @@
   function showLetterStage() {
     letterSection.hidden = false;
     void letterSection.offsetWidth;
-    letterSection.classList.add('is-entering', 'is-journey');
-    body.classList.remove('is-locked');
-    body.classList.add('is-unlocked', 'has-app-nav');
-    showAppNav();
+    letterSection.classList.add('is-entering', 'is-letter-only');
+    body.classList.remove('is-locked', 'has-app-nav', 'stage-hub');
+    body.classList.add('is-unlocked', 'stage-letter');
+    // Nav stays hidden in stage 3
+    const nav = document.getElementById('app-nav');
+    if (nav) {
+      nav.hidden = true;
+      nav.classList.remove('is-visible');
+    }
   }
 
   function spawnLetterConfetti() {
@@ -546,7 +551,12 @@
   }
 
   function finishLetterTyping() {
-    showLetterExtras();
+    if (continueStoryBtn) {
+      continueStoryBtn.hidden = false;
+      requestAnimationFrame(function () {
+        continueStoryBtn.classList.add('is-shown');
+      });
+    }
   }
 
   if (continueStoryBtn) {
@@ -649,28 +659,7 @@
   }
 
   function showLetterExtras() {
-    if (!letterExtras) return;
-    letterExtras.hidden = false;
-    void letterExtras.offsetWidth;
-    letterExtras.classList.add('is-visible');
-    startTogetherTimer();
-    initReasons();
-    initLoveQuotes();
-    initPrivateCorner();
-    initAdminUnlock();
-
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        initVouchers();
-      });
-    });
-
-    if (continueStoryBtn) {
-      continueStoryBtn.hidden = false;
-      requestAnimationFrame(function () {
-        continueStoryBtn.classList.add('is-shown');
-      });
-    }
+    // Stage 3 no longer reveals extras; hub opens via continue button
   }
 
   function initReasons() {
@@ -1196,14 +1185,22 @@
       btn.addEventListener('click', function () {
         const id = btn.getAttribute('data-scroll');
         // Ensure destination sections are visible
-        if (id === 'story-section' || id === 'sec-personal') {
-          if (storySection) {
-            storySection.hidden = false;
-            storySection.classList.add('is-visible', 'is-inline');
-          }
-          const personal = document.getElementById('sec-personal');
-          if (personal) personal.hidden = false;
-          initScrollReveals();
+        const hub = document.getElementById('main-hub');
+        if (hub) {
+          hub.hidden = false;
+          hub.classList.add('is-visible');
+        }
+        body.classList.add('stage-hub', 'has-app-nav');
+        body.classList.remove('stage-letter');
+        if (storySection) {
+          storySection.hidden = false;
+          storySection.classList.add('is-visible', 'is-inline');
+        }
+        const personal = document.getElementById('sec-personal');
+        if (personal) personal.hidden = false;
+        if (id === 'story-section') initScrollReveals();
+        if (id === 'sec-vouchers') {
+          requestAnimationFrame(function () { initVouchers(); });
         }
         const el = document.getElementById(id);
         if (!el) return;
@@ -1243,32 +1240,50 @@
 
 
   function goToStory() {
-    // Keep letter & extras visible — reveal story + personal below and scroll
+    const hub = document.getElementById('main-hub');
+    const personal = document.getElementById('sec-personal');
+
+    // Keep letter available for revisit; mark journey mode
     letterSection.classList.add('is-journey');
     letterSection.classList.remove('is-leaving');
-    letterSection.style.display = '';
     letterSection.hidden = false;
+    letterSection.style.display = '';
 
-    storySection.hidden = false;
-    storySection.classList.add('is-visible', 'is-inline');
-
-    const personal = document.getElementById('sec-personal');
-    if (personal) {
-      personal.hidden = false;
+    if (hub) {
+      hub.hidden = false;
+      hub.classList.add('is-visible');
     }
 
-    body.classList.remove('is-locked');
-    body.classList.add('is-unlocked', 'has-app-nav');
-    showAppNav();
+    if (storySection) {
+      storySection.hidden = false;
+      storySection.classList.add('is-visible', 'is-inline');
+    }
+    if (personal) personal.hidden = false;
 
+    body.classList.remove('is-locked', 'stage-letter');
+    body.classList.add('is-unlocked', 'has-app-nav', 'stage-hub');
+
+    showAppNav();
     initScrollReveals();
     initParallax();
+    initReasons();
+    initLoveQuotes();
+    initPrivateCorner();
+    initAdminUnlock();
+    initPersonalToggle();
     startTogetherTimer();
 
+    // Init vouchers after layout
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        initVouchers();
+      });
+    });
+
     window.setTimeout(function () {
-      const target = document.getElementById('story-section');
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
+      if (hub) hub.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      else if (storySection) storySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 60);
   }
 
 

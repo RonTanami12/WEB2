@@ -38,19 +38,18 @@
   <div class="ambient ambient-2" aria-hidden="true"></div>
   <div class="ambient ambient-3" aria-hidden="true"></div>
 
-
-  <!-- App Navigation (shown after unlock) -->
+  <!-- App Navigation (Stage 4+ only) -->
   <nav id="app-nav" class="app-nav" hidden aria-label="ניווט ראשי">
     <div class="app-nav-inner">
       <button type="button" class="app-nav-btn" data-scroll="sec-letter">המכתב הסודי</button>
+      <button type="button" class="app-nav-btn" data-scroll="story-section">הסיפור שלנו</button>
       <button type="button" class="app-nav-btn" data-scroll="sec-vouchers">כרטיסי הגירוד</button>
       <button type="button" class="app-nav-btn" data-scroll="sec-private">הפינה הפרטית</button>
-      <button type="button" class="app-nav-btn" data-scroll="story-section">הסיפור שלנו</button>
       <button type="button" class="app-nav-btn" data-scroll="sec-personal">אזור אישי</button>
     </div>
   </nav>
 
-  <!-- SECTION 1: Login -->
+<!-- SECTION 1: Login -->
   <section id="login-section" class="section-screen" aria-label="מסך כניסה">
     <div class="login-shell">
       <div class="login-card glass reveal-up" id="login-card">
@@ -182,86 +181,21 @@
           <span class="ornament-diamond"></span>
           <span class="ornament-line"></span>
         </div>
+      
+        <button type="button" class="continue-story-btn letter-continue-btn" id="continue-story-btn" hidden>
+          <span class="btn-shimmer" aria-hidden="true"></span>
+          <span>להמשך הסיפור והאזור האישי ✨</span>
+        </button>
       </article>
 
       <!-- Post-letter extras (shown after letter opens) -->
-      <div id="letter-extras" class="letter-extras" hidden>
-<!-- 2. Reasons Wheel / Random Card -->
-        <section class="extra-block glass-soft reveal-extra" aria-label="גלגל הסיבות">
-          <p class="extra-eyebrow">רק בשבילך</p>
-          <h3 class="extra-title font-serif">גלגל הסיבות שאני אוהב אותך</h3>
-          <div class="reason-stage">
-            <div class="reason-card" id="reason-card" aria-live="polite">
-              <p class="reason-placeholder" id="reason-text">לחצי על הכפתור וגלי סיבה...</p>
-            </div>
-            <button type="button" class="reason-btn" id="reason-btn">
-              <span class="btn-shimmer" aria-hidden="true"></span>
-              <span>לחצי לסיבה נוספת...</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- 3. Scratch Vouchers -->
-        <section class="extra-block glass-soft reveal-extra" id="sec-vouchers" aria-label="שוברים מיוחדים">
-          <p class="extra-eyebrow">מתנה אחת</p>
-          <h3 class="extra-title font-serif">שוברים מיוחדים בשבילך 🎁</h3>
-          <p class="extra-sub vouchers-intro">בחרי שובר אחד, גרדי אותו וצלמי לי מסך כדי לממש!</p>
-          <p class="voucher-lock-msg" id="voucher-lock-msg" hidden>כבר בחרת שובר — שמור עליו היטב ✨</p>
-          <div class="vouchers-grid" id="vouchers-grid">
-            <!-- filled by JS -->
-          </div>
-
-          <div class="voucher-admin">
-            <button type="button" class="voucher-admin-btn" id="voucher-admin-btn">אישור מנהל 🔑</button>
-            <p class="voucher-admin-hint" id="voucher-admin-hint" hidden></p>
-          </div>
-
-        </section>
-<!-- Our Private Corner -->
-        <section class="extra-block glass-soft private-corner reveal-extra" id="sec-private" aria-label="הפינה הפרטית שלנו">
-          <p class="extra-eyebrow">רק בינינו</p>
-          <h3 class="extra-title font-serif">הפינה הפרטית שלנו</h3>
-          <p class="extra-sub private-intro">שלושה מקומות קטנים ששמורים רק לנו</p>
-
-          <div class="private-actions">
-            <button type="button" class="private-action-btn" id="promises-btn" data-modal="promises-modal">
-              ההבטחות שלי אלייך (לכל החיים) 💍
-            </button>
-            <button type="button" class="private-action-btn" id="jokes-btn" data-modal="jokes-modal">
-              כספת הבדיחות שלנו 🤫
-            </button>
-          </div>
-
-          <div class="secret-spot glass-soft" id="secret-spot">
-            <p class="secret-spot-eyebrow">📍 נקודת הציון</p>
-            <h4 class="secret-spot-title font-serif">המפגש הסודי שלנו</h4>
-            <p class="secret-coords" dir="ltr">32°01'10.4"N 34°49'00.1"E</p>
-            <p class="secret-spot-sub">הנקודה שבה הכל התחיל... (28.09.2025)</p>
-            <a
-              class="maps-btn"
-              id="maps-btn"
-              href="https://www.google.com/maps/search/?api=1&query=32.019556,34.816694"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              פתחי ב-Google Maps 🗺️
-            </a>
-          </div>
-        </section>
-
-
-
-        <button type="button" class="continue-story-btn" id="continue-story-btn" hidden>
-          <span class="btn-shimmer" aria-hidden="true"></span>
-          <span>המשך לסיפור שלנו</span>
-        </button>
-      </div>
-    </div>
-
-    <div id="letter-confetti" class="letter-confetti" aria-hidden="true"></div>
+      <div id="letter-confetti" class="letter-confetti" aria-hidden="true"></div>
   </section>
 
-  <!-- SECTION 2: Our Story -->
+  <!-- STAGE 4: Main Hub -->
+  <div id="main-hub" class="main-hub" hidden>
+    <div class="hub-stack">
+      <!-- SECTION 2: Our Story -->
   <section id="story-section" class="story-section journey-section" aria-label="הסיפור שלנו" hidden>
     <header class="story-hero">
       <div class="story-hero-inner" data-parallax="0.15">
@@ -324,11 +258,17 @@
         <li class="timeline-item reveal-story">
           <div class="timeline-marker" aria-hidden="true"><span class="marker-dot"></span><span class="marker-ring"></span></div>
           <div class="timeline-card glass-soft">
-            <div class="timeline-media">
-              <div class="image-placeholder image-placeholder--sm">
-                <span class="placeholder-icon">&#127769;</span>
-                <span class="placeholder-label">מפגש סודי</span>
-              </div>
+            <div class="timeline-media timeline-media--photo">
+              <figure class="story-photo-frame">
+                <img
+                  src="our-photo.jpg"
+                  alt="אביטל ואני — המפגש הסודי"
+                  class="story-photo"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption class="story-photo-caption">המפגש הסודי שלנו</figcaption>
+              </figure>
             </div>
             <div class="timeline-body">
               <span class="timeline-tag">סוד קטן</span>
@@ -356,6 +296,112 @@
         </li>
       </ol>
     </section>
+      <section class="extra-block glass-soft reveal-extra" aria-label="גלגל הסיבות">
+          <p class="extra-eyebrow">רק בשבילך</p>
+          <h3 class="extra-title font-serif">גלגל הסיבות שאני אוהב אותך</h3>
+          <div class="reason-stage">
+            <div class="reason-card" id="reason-card" aria-live="polite">
+              <p class="reason-placeholder" id="reason-text">לחצי על הכפתור וגלי סיבה...</p>
+            </div>
+            <button type="button" class="reason-btn" id="reason-btn">
+              <span class="btn-shimmer" aria-hidden="true"></span>
+              <span>לחצי לסיבה נוספת...</span>
+            </button>
+          </div>
+        </section>
+      <section class="extra-block glass-soft reveal-extra" id="sec-vouchers" aria-label="שוברים מיוחדים">
+          <p class="extra-eyebrow">מתנה אחת</p>
+          <h3 class="extra-title font-serif">שוברים מיוחדים בשבילך 🎁</h3>
+          <p class="extra-sub vouchers-intro">בחרי שובר אחד, גרדי אותו וצלמי לי מסך כדי לממש!</p>
+          <p class="voucher-lock-msg" id="voucher-lock-msg" hidden>כבר בחרת שובר — שמור עליו היטב ✨</p>
+          <div class="vouchers-grid" id="vouchers-grid">
+            <!-- filled by JS -->
+          </div>
+
+          <div class="voucher-admin">
+            <button type="button" class="voucher-admin-btn" id="voucher-admin-btn">אישור מנהל 🔑</button>
+            <p class="voucher-admin-hint" id="voucher-admin-hint" hidden></p>
+          </div>
+
+        </section>
+      <section class="extra-block glass-soft private-corner reveal-extra" id="sec-private" aria-label="הפינה הפרטית שלנו">
+          <p class="extra-eyebrow">רק בינינו</p>
+          <h3 class="extra-title font-serif">הפינה הפרטית שלנו</h3>
+          <p class="extra-sub private-intro">שלושה מקומות קטנים ששמורים רק לנו</p>
+
+          <div class="private-actions">
+            <button type="button" class="private-action-btn" id="promises-btn" data-modal="promises-modal">
+              ההבטחות שלי אלייך (לכל החיים) 💍
+            </button>
+            <button type="button" class="private-action-btn" id="jokes-btn" data-modal="jokes-modal">
+              כספת הבדיחות שלנו 🤫
+            </button>
+          </div>
+
+          <div class="secret-spot glass-soft" id="secret-spot">
+            <p class="secret-spot-eyebrow">📍 נקודת הציון</p>
+            <h4 class="secret-spot-title font-serif">המפגש הסודי שלנו</h4>
+            <p class="secret-coords" dir="ltr">32°01'10.4"N 34°49'00.1"E</p>
+            <p class="secret-spot-sub">הנקודה שבה הכל התחיל... (28.09.2025)</p>
+            <a
+              class="maps-btn"
+              id="maps-btn"
+              href="https://www.google.com/maps/search/?api=1&query=32.019556,34.816694"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              פתחי ב-Google Maps 🗺️
+            </a>
+          </div>
+        </section>
+      
+      <section id="sec-personal" class="hub-panel glass-panel" aria-label="אזור אישי">
+        <p class="extra-eyebrow">רק שלך</p>
+        <h3 class="extra-title font-serif">אזור אישי</h3>
+        <button type="button" class="personal-toggle-btn" id="personal-toggle" aria-expanded="false" aria-controls="personal-panel">
+          אזור אישי ופרטי 👤
+        </button>
+        <div id="personal-panel" class="personal-panel glass-soft" hidden>
+          <div class="dash-profile personal-profile-card">
+            <div class="dash-avatar" aria-hidden="true">א</div>
+            <div class="dash-profile-body">
+              <p class="dash-profile-name font-serif">אביטל ביטון</p>
+              <ul class="dash-profile-meta">
+                <li><span>טלפון</span><strong dir="ltr">0547866885</strong></li>
+                <li><span>יום הולדת</span><strong dir="ltr">05.11.2000</strong></li>
+              </ul>
+            </div>
+          </div>
+          <div class="dash-timer-wrap">
+            <p class="dash-mini-label">הזמן שלנו יחד</p>
+            <div class="time-counter" id="time-counter" dir="ltr">
+              <div class="time-unit"><span class="time-value" id="tc-days">0</span><span class="time-label">ימים</span></div>
+              <span class="time-sep" aria-hidden="true">:</span>
+              <div class="time-unit"><span class="time-value" id="tc-hours">00</span><span class="time-label">שעות</span></div>
+              <span class="time-sep" aria-hidden="true">:</span>
+              <div class="time-unit"><span class="time-value" id="tc-mins">00</span><span class="time-label">דקות</span></div>
+              <span class="time-sep" aria-hidden="true">:</span>
+              <div class="time-unit"><span class="time-value" id="tc-secs">00</span><span class="time-label">שניות</span></div>
+            </div>
+            <p class="extra-sub dash-timer-sub">מאז 28.09.2025 · וממשיכים לספור ❤</p>
+          </div>
+          <div class="dash-quotes">
+            <p class="dash-mini-label">משפטי אהבה מתחלפים</p>
+            <div class="quote-card" id="quote-card" aria-live="polite"><p id="quote-text">לחצי כדי לקבל משפט אהבה...</p></div>
+            <button type="button" class="reason-btn quote-btn" id="quote-btn">
+              <span class="btn-shimmer" aria-hidden="true"></span>
+              <span>משפט אהבה חדש 💖</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+
+
+  
 
     <footer class="story-closing reveal-story">
       <div class="closing-ornament" aria-hidden="true">
@@ -371,69 +417,7 @@
       <p class="closing-signature">— שלך</p>
     </footer>
   </section>
-
-
-
-  <!-- Personal Area (end of journey) -->
-  <section id="sec-personal" class="journey-block personal-end" hidden aria-label="אזור אישי">
-    <div class="personal-end-inner">
-      <button type="button" class="personal-toggle-btn" id="personal-toggle" aria-expanded="false" aria-controls="personal-panel">
-        אזור אישי ופרטי 👤
-      </button>
-
-      <div id="personal-panel" class="personal-panel glass-soft" hidden>
-        <div class="dash-profile personal-profile-card">
-          <div class="dash-avatar" aria-hidden="true">א</div>
-          <div class="dash-profile-body">
-            <p class="dash-profile-name font-serif">אביטל ביטון</p>
-            <ul class="dash-profile-meta">
-              <li><span>טלפון</span><strong dir="ltr">0547866885</strong></li>
-              <li><span>יום הולדת</span><strong dir="ltr">05.11.2000</strong></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="dash-timer-wrap">
-          <p class="dash-mini-label">הזמן שלנו יחד</p>
-          <div class="time-counter" id="time-counter" dir="ltr">
-            <div class="time-unit">
-              <span class="time-value" id="tc-days">0</span>
-              <span class="time-label">ימים</span>
-            </div>
-            <span class="time-sep" aria-hidden="true">:</span>
-            <div class="time-unit">
-              <span class="time-value" id="tc-hours">00</span>
-              <span class="time-label">שעות</span>
-            </div>
-            <span class="time-sep" aria-hidden="true">:</span>
-            <div class="time-unit">
-              <span class="time-value" id="tc-mins">00</span>
-              <span class="time-label">דקות</span>
-            </div>
-            <span class="time-sep" aria-hidden="true">:</span>
-            <div class="time-unit">
-              <span class="time-value" id="tc-secs">00</span>
-              <span class="time-label">שניות</span>
-            </div>
-          </div>
-          <p class="extra-sub dash-timer-sub">מאז 28.09.2025 · וממשיכים לספור ❤</p>
-        </div>
-
-        <div class="dash-quotes">
-          <p class="dash-mini-label">משפטי אהבה מתחלפים</p>
-          <div class="quote-card" id="quote-card" aria-live="polite">
-            <p id="quote-text">לחצי כדי לקבל משפט אהבה...</p>
-          </div>
-          <button type="button" class="reason-btn quote-btn" id="quote-btn">
-            <span class="btn-shimmer" aria-hidden="true"></span>
-            <span>משפט אהבה חדש 💖</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Promises Modal -->
+<!-- Promises Modal -->
   <div class="modal-overlay" id="promises-modal" hidden aria-hidden="true">
     <div class="modal-card glass" role="dialog" aria-modal="true" aria-labelledby="promises-modal-title">
       <button type="button" class="modal-close" data-close-modal aria-label="סגירה">×</button>

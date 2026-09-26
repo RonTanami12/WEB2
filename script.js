@@ -428,8 +428,10 @@
   function showLetterStage() {
     letterSection.hidden = false;
     void letterSection.offsetWidth;
-    letterSection.classList.add('is-entering');
-    body.classList.add('is-locked');
+    letterSection.classList.add('is-entering', 'is-journey');
+    body.classList.remove('is-locked');
+    body.classList.add('is-unlocked', 'has-app-nav');
+    showAppNav();
   }
 
   function spawnLetterConfetti() {
@@ -1035,33 +1037,73 @@
 
 
 
+
   // ——— Private corner: promises + jokes vault ———
-  const PRIVATE_JOKES = [
-    {
-      label: 'הבדיחה שלנו #1',
-      text: 'השיחות על איחוד הצלה והמסאז\' במאזדה השחורה 😉',
-    },
-    {
-      label: 'בלונדינית וקליטה',
-      text: 'למה בלונדינית שמה את הטלפון על הרצפה? כדי לבדוק אם יש קליטה מהרצפה.',
-    },
-    {
-      label: 'בלונדינית ודג',
-      text: 'איך בלונדינית מנסה להרוג דג? היא מנסה להטביע אותו במים.',
-    },
-    {
-      label: 'בלונדינית ושלג',
-      text: 'מה בלונדינית עושה כשהיא רואה שלג? מביאה כפית כי זה נראה כמו גלידה.',
-    },
-    {
-      label: 'בלונדינית וקיר',
-      text: 'למה בלונדינית מטפסת על קיר זכוכית? כדי לראות מה יש בצד השני.',
-    },
-    {
-      label: 'בלונדינית וג\'לי',
-      text: 'בלונדינית פותחת את המקרר, רואה את הג\'לי רועד ואומרת: \'אל תפחד, אני רק רוצה לקחת משהו לשתות!\'',
-    },
-  ];
+  const PRIVATE_JOKES = {
+    inside: [
+      {
+        label: 'זיכרון פנימי שלנו',
+        text: 'השיחות על איחוד הצלה והמסאז\' במאזדה השחורה 😉',
+      },
+    ],
+    blonde: [
+      {
+        label: 'בלונדינית וקליטה',
+        text: 'למה בלונדינית שמה את הטלפון על הרצפה? כדי לבדוק אם יש קליטה מהרצפה.',
+      },
+      {
+        label: 'בלונדינית ודג',
+        text: 'איך בלונדינית מנסה להרוג דג? היא מנסה להטביע אותו במים.',
+      },
+      {
+        label: 'בלונדינית ושלג',
+        text: 'מה בלונדינית עושה כשהיא רואה שלג? מביאה כפית כי זה נראה כמו גלידה.',
+      },
+      {
+        label: 'בלונדינית וקיר',
+        text: 'למה בלונדינית מטפסת על קיר זכוכית? כדי לראות מה יש בצד השני.',
+      },
+      {
+        label: 'בלונדינית וג\'לי',
+        text: 'בלונדינית פותחת את המקרר, רואה את הג\'לי רועד ואומרת: \'אל תפחד, אני רק רוצה לקחת משהו לשתות!\'',
+      },
+    ],
+  };
+
+  function renderJokeCategory(vault, title, items, kind) {
+    const wrap = document.createElement('div');
+    wrap.className = 'joke-category';
+    const h = document.createElement('p');
+    h.className = 'joke-category-title';
+    h.textContent = title;
+    wrap.appendChild(h);
+
+    items.forEach(function (joke) {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'joke-card joke-card--' + kind;
+      card.innerHTML =
+        '<div class="joke-card-face"><span class="joke-card-tag"></span><div class="joke-card-label"></div></div>' +
+        '<div class="joke-card-body"></div>';
+      card.querySelector('.joke-card-tag').textContent = kind === 'inside' ? 'בדיחה פנימית' : 'בדיחת בלונדינית';
+      card.querySelector('.joke-card-label').textContent = joke.label + ' ▾';
+      card.querySelector('.joke-card-body').textContent = joke.text;
+      card.addEventListener('click', function () {
+        const open = card.classList.contains('is-open');
+        vault.querySelectorAll('.joke-card').forEach(function (c) {
+          c.classList.remove('is-open');
+          const lab = c.querySelector('.joke-card-label');
+          if (lab) lab.textContent = lab.textContent.replace(' ▴', ' ▾');
+        });
+        if (!open) {
+          card.classList.add('is-open');
+          card.querySelector('.joke-card-label').textContent = joke.label + ' ▴';
+        }
+      });
+      wrap.appendChild(card);
+    });
+    vault.appendChild(wrap);
+  }
 
   function initPrivateCorner() {
     const promisesBtn = document.getElementById('promises-btn');
@@ -1072,28 +1114,8 @@
 
     if (jokesVault && !jokesVault.dataset.ready) {
       jokesVault.dataset.ready = '1';
-      PRIVATE_JOKES.forEach(function (joke, i) {
-        const card = document.createElement('button');
-        card.type = 'button';
-        card.className = 'joke-card';
-        card.innerHTML =
-          '<div class="joke-card-face"></div><div class="joke-card-body"></div>';
-        card.querySelector('.joke-card-face').textContent = joke.label + ' ▾';
-        card.querySelector('.joke-card-body').textContent = joke.text;
-        card.addEventListener('click', function () {
-          const open = card.classList.contains('is-open');
-          jokesVault.querySelectorAll('.joke-card').forEach(function (c) {
-            c.classList.remove('is-open');
-            const face = c.querySelector('.joke-card-face');
-            if (face) face.textContent = face.textContent.replace(' ▴', ' ▾');
-          });
-          if (!open) {
-            card.classList.add('is-open');
-            card.querySelector('.joke-card-face').textContent = joke.label + ' ▴';
-          }
-        });
-        jokesVault.appendChild(card);
-      });
+      renderJokeCategory(jokesVault, '🤫 בדיחות פנימיות / זיכרונות שלנו', PRIVATE_JOKES.inside, 'inside');
+      renderJokeCategory(jokesVault, '💇 בדיחות בלונדיניות', PRIVATE_JOKES.blonde, 'blonde');
     }
 
     function openModal(modal) {
@@ -1103,7 +1125,6 @@
       requestAnimationFrame(function () {
         modal.classList.add('is-open');
       });
-      document.body.style.overflow = 'hidden';
     }
 
     function closeModal(modal) {
@@ -1113,8 +1134,6 @@
       window.setTimeout(function () {
         modal.hidden = true;
       }, 350);
-      // restore scroll only if letter section still locked/scrollable
-      document.body.style.overflow = '';
     }
 
     function bindOpen(btn, modal) {
@@ -1156,25 +1175,100 @@
   }
 
 
+
+  function showAppNav() {
+    const nav = document.getElementById('app-nav');
+    if (!nav) return;
+    nav.hidden = false;
+    requestAnimationFrame(function () {
+      nav.classList.add('is-visible');
+    });
+    body.classList.add('has-app-nav');
+    initAppNav();
+    initPersonalToggle();
+  }
+
+  function initAppNav() {
+    const nav = document.getElementById('app-nav');
+    if (!nav || nav.dataset.bound) return;
+    nav.dataset.bound = '1';
+    nav.querySelectorAll('[data-scroll]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const id = btn.getAttribute('data-scroll');
+        // Ensure destination sections are visible
+        if (id === 'story-section' || id === 'sec-personal') {
+          if (storySection) {
+            storySection.hidden = false;
+            storySection.classList.add('is-visible', 'is-inline');
+          }
+          const personal = document.getElementById('sec-personal');
+          if (personal) personal.hidden = false;
+          initScrollReveals();
+        }
+        const el = document.getElementById(id);
+        if (!el) return;
+        nav.querySelectorAll('.app-nav-btn').forEach(function (b) {
+          b.classList.remove('is-active');
+        });
+        btn.classList.add('is-active');
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
+  function initPersonalToggle() {
+    const toggle = document.getElementById('personal-toggle');
+    const panel = document.getElementById('personal-panel');
+    if (!toggle || !panel || toggle.dataset.bound) return;
+    toggle.dataset.bound = '1';
+    toggle.addEventListener('click', function () {
+      const open = toggle.getAttribute('aria-expanded') === 'true';
+      if (open) {
+        toggle.setAttribute('aria-expanded', 'false');
+        panel.classList.remove('is-open');
+        window.setTimeout(function () {
+          panel.hidden = true;
+        }, 350);
+      } else {
+        panel.hidden = false;
+        toggle.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(function () {
+          panel.classList.add('is-open');
+        });
+        startTogetherTimer();
+        initLoveQuotes();
+      }
+    });
+  }
+
+
   function goToStory() {
-    letterSection.classList.remove('is-entering');
-    letterSection.classList.add('is-leaving');
+    // Keep letter & extras visible — reveal story + personal below and scroll
+    letterSection.classList.add('is-journey');
+    letterSection.classList.remove('is-leaving');
+    letterSection.style.display = '';
+    letterSection.hidden = false;
+
+    storySection.hidden = false;
+    storySection.classList.add('is-visible', 'is-inline');
+
+    const personal = document.getElementById('sec-personal');
+    if (personal) {
+      personal.hidden = false;
+    }
+
+    body.classList.remove('is-locked');
+    body.classList.add('is-unlocked', 'has-app-nav');
+    showAppNav();
+
+    initScrollReveals();
+    initParallax();
+    startTogetherTimer();
 
     window.setTimeout(function () {
-      letterSection.setAttribute('hidden', '');
-      letterSection.style.display = 'none';
-
-      storySection.hidden = false;
-      void storySection.offsetWidth;
-      storySection.classList.add('is-visible');
-
-      body.classList.remove('is-locked');
-      body.classList.add('is-unlocked');
-
-      initScrollReveals();
-      initParallax();
-      window.scrollTo(0, 0);
-    }, 850);
+      const target = document.getElementById('story-section');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
   }
 
 

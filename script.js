@@ -1,6 +1,6 @@
 /**
  * Avital & Me — One Year Anniversary
- * Access gate + story unlock + particles + scroll reveals
+ * Login -> Quiz -> Story
  */
 
 (function () {
@@ -13,9 +13,89 @@
     '05112000',
   ]);
 
+  /**
+   * QUIZ CONFIG — edit correctIndex / correctAnswer to customize
+   * For multiple-choice: correctIndex is 0-based index into options[]
+   * For pin: correctAnswer is the expected string
+   */
+  const QUIZ_QUESTIONS = [
+    {
+      id: 1,
+      type: 'choice',
+      question: '\u05d0\u05d9\u05e4\u05d4 \u05d4\u05d9\u05ea\u05d4 \u05d4\u05e0\u05e9\u05d9\u05e7\u05d4 \u05d4\u05e8\u05d0\u05e9\u05d5\u05e0\u05d4 \u05e9\u05dc\u05e0\u05d5?',
+      options: [
+        '\u05e2\u05dc \u05e1\u05e4\u05e1\u05dc \u05d1\u05e4\u05d0\u05e8\u05e7',
+        '\u05d1\u05de\u05db\u05d5\u05e0\u05d9\u05ea \u05d0\u05d7\u05e8\u05d9 \u05d4\u05d3\u05d9\u05d9\u05d8',
+        '\u05e2\u05dc \u05d4\u05d2\u05d2 \u05ea\u05d7\u05ea \u05d4\u05db\u05d5\u05db\u05d1\u05d9\u05dd',
+        '\u05d1\u05db\u05e0\u05d9\u05e1\u05d4 \u05dc\u05d1\u05e0\u05d9\u05d9\u05df \u05e9\u05dc\u05da',
+      ],
+      // <<< Change this index to set the correct answer (0–3)
+      correctIndex: 1,
+    },
+    {
+      id: 2,
+      type: 'choice',
+      question: '\u05de\u05d9 \u05e9\u05dc\u05d7 \u05d4\u05d5\u05d3\u05e2\u05d4 \u05e8\u05d0\u05e9\u05d5\u05df \u05d1\u05e4\u05d9\u05d9\u05e1\u05d1\u05d5\u05e7?',
+      options: [
+        '\u05d0\u05e0\u05d9 (\u05d0\u05ea\u05d4)',
+        '\u05d0\u05d1\u05d9\u05d8\u05dc',
+        '\u05e9\u05e0\u05d9\u05e0\u05d5 \u05d1\u05d9\u05d7\u05d3',
+      ],
+      // <<< Change this index — 0 = "\u05d0\u05e0\u05d9"
+      correctIndex: 0,
+    },
+    {
+      id: 3,
+      type: 'choice',
+      question: '\u05de\u05d4 \u05d4\u05de\u05d0\u05db\u05dc \u05e9\u05e9\u05e0\u05d9\u05e0\u05d5 \u05d4\u05db\u05d9 \u05d0\u05d5\u05d4\u05d1\u05d9\u05dd \u05dc\u05d4\u05d6\u05de\u05d9\u05df?',
+      options: [
+        '\u05e1\u05d5\u05e9\u05d9',
+        '\u05e4\u05d9\u05e6\u05d4',
+        '\u05d4\u05de\u05d1\u05d5\u05e8\u05d2\u05e8',
+        '\u05d4\u05db\u05dc!',
+      ],
+      correctIndex: 3, // "\u05d4\u05db\u05dc!"
+    },
+    {
+      id: 4,
+      type: 'pin',
+      question: '\u05de\u05d4 \u05d4\u05e7\u05d5\u05d3 \u05dc\u05e6\u05d0\u05d8 \u05d4\u05e1\u05d5\u05d3\u05d9?',
+      // <<< Change the secret pin here
+      correctAnswer: '1105',
+      placeholder: '****',
+      submitLabel: '\u05d1\u05d3\u05d9\u05e7\u05d4',
+    },
+    {
+      id: 5,
+      type: 'choice',
+      question: '\u05de\u05d4 \u05de\u05e7\u05d5\u05dd \u05d4\u05d1\u05d9\u05dc\u05d5\u05d9 \u05e9\u05d0\u05e0\u05d7\u05e0\u05d5 \u05d4\u05db\u05d9 \u05d0\u05d5\u05d4\u05d1\u05d9\u05dd?',
+      options: [
+        '\u05de\u05e1\u05e2\u05d3\u05d4 \u05d9\u05d5\u05e7\u05e8\u05ea\u05d9\u05ea',
+        '\u05d4\u05d9\u05dd \u05d1\u05e2\u05e8\u05d1',
+        '\u05d0\u05d9\u05d7\u05d5\u05d3 \u05d4\u05e6\u05dc\u05d4',
+        '\u05e1\u05e8\u05d8 \u05d1\u05d1\u05d9\u05ea',
+      ],
+      correctIndex: 2, // "\u05d0\u05d9\u05d7\u05d5\u05d3 \u05d4\u05e6\u05dc\u05d4"
+    },
+  ];
+
+  const MSG = {
+    wrong: '\u05db\u05de\u05e2\u05d8... \u05e0\u05e1\u05d9 \u05e9\u05d5\u05d1! \U0001f609',
+    correct: [
+      '\u05e0\u05db\u05d5\u05df! \u2764',
+      '\u05d1\u05d3\u05d9\u05d5\u05e7 \u05e9\u05dc\u05da \u2728',
+      '\u05db\u05da \u05d9\u05d5\u05d3\u05e2\u05ea \u05d0\u05d5\u05ea\u05d9 \u05d4\u05db\u05d9 \u05d8\u05d5\u05d1 \U0001f495',
+      '\u05de\u05d5\u05e9\u05dc\u05de\u05ea! \u2726',
+    ],
+    progress: function (n, total) {
+      return '\u05e9\u05d0\u05dc\u05d4 ' + n + ' \u05de\u05ea\u05d5\u05da ' + total;
+    },
+  };
+
   // ——— DOM ———
   const body = document.body;
   const loginSection = document.getElementById('login-section');
+  const quizSection = document.getElementById('quiz-section');
   const storySection = document.getElementById('story-section');
   const accessForm = document.getElementById('access-form');
   const accessInput = document.getElementById('access-code');
@@ -24,10 +104,20 @@
   const successSplash = document.getElementById('success-splash');
   const splashHearts = document.getElementById('splash-hearts');
   const canvas = document.getElementById('particles');
+  const quizStage = document.getElementById('quiz-stage');
+  const quizFeedback = document.getElementById('quiz-feedback');
+  const quizProgressText = document.getElementById('quiz-progress-text');
+  const quizProgressFill = document.getElementById('quiz-progress-fill');
+  const quizProgressBar = document.getElementById('quiz-progress-bar');
+  const quizCelebrate = document.getElementById('quiz-celebrate');
+  const celebrateBurst = document.getElementById('celebrate-burst');
+
+  let quizIndex = 0;
+  let quizLocked = false;
 
   body.classList.add('is-locked');
 
-  // ——— Normalize & validate ———
+  // ——— Normalize & validate login ———
   function normalizeCode(raw) {
     return String(raw || '')
       .trim()
@@ -40,7 +130,6 @@
     const code = normalizeCode(value);
     if (VALID_CODES.has(code)) return true;
 
-    // Accept birthday with dashes: 05-11-2000
     const withDashes = String(value || '')
       .trim()
       .replace(/\s+/g, '');
@@ -52,26 +141,21 @@
     return false;
   }
 
-  // ——— Form submit ———
   accessForm.addEventListener('submit', function (e) {
     e.preventDefault();
-
     const value = accessInput.value;
-
     if (!isValidCode(value)) {
       showError();
       return;
     }
-
     hideError();
-    unlockStory();
+    goToQuiz();
   });
 
   function showError() {
     errorMessage.hidden = false;
     accessInput.classList.add('is-error');
     accessInput.focus();
-
     window.setTimeout(function () {
       accessInput.classList.remove('is-error');
     }, 500);
@@ -82,10 +166,10 @@
     accessInput.classList.remove('is-error');
   }
 
-  // ——— Unlock transition ———
-  function unlockStory() {
+  // ——— Login -> Quiz ———
+  function goToQuiz() {
     enterBtn.disabled = true;
-    playHeartSplash();
+    playHeartSplash(splashHearts, successSplash);
 
     window.setTimeout(function () {
       loginSection.classList.add('is-leaving');
@@ -93,6 +177,222 @@
       window.setTimeout(function () {
         loginSection.setAttribute('hidden', '');
         loginSection.style.display = 'none';
+        successSplash.classList.remove('is-active');
+
+        quizSection.hidden = false;
+        void quizSection.offsetWidth;
+        quizSection.classList.add('is-entering');
+
+        startQuiz();
+      }, 850);
+    }, 1200);
+  }
+
+  function playHeartSplash(container, overlay) {
+    if (overlay) {
+      overlay.classList.add('is-active');
+      overlay.setAttribute('aria-hidden', 'false');
+    }
+    container.innerHTML = '';
+    for (let i = 0; i < 18; i++) {
+      const heart = document.createElement('span');
+      heart.className = 'splash-heart';
+      heart.textContent = i % 3 === 0 ? '\u2726' : '\u2764';
+      heart.style.left = 35 + Math.random() * 30 + '%';
+      heart.style.top = 40 + Math.random() * 20 + '%';
+      heart.style.fontSize = 0.9 + Math.random() * 1.4 + 'rem';
+      heart.style.color = i % 2 === 0 ? '#B76E79' : '#E8D5A3';
+      heart.style.setProperty('--hx', (Math.random() - 0.5) * 280 + 'px');
+      heart.style.setProperty('--hy', -80 - Math.random() * 220 + 'px');
+      heart.style.animationDelay = Math.random() * 0.35 + 's';
+      container.appendChild(heart);
+    }
+  }
+
+  // ——— Quiz engine ———
+  function startQuiz() {
+    quizIndex = 0;
+    quizLocked = false;
+    updateProgress();
+    renderQuestion(quizIndex);
+  }
+
+  function updateProgress() {
+    const total = QUIZ_QUESTIONS.length;
+    const current = quizIndex + 1;
+    quizProgressText.textContent = MSG.progress(current, total);
+    const pct = (current / total) * 100;
+    quizProgressFill.style.width = pct + '%';
+    quizProgressBar.setAttribute('aria-valuenow', String(current));
+  }
+
+  function renderQuestion(index) {
+    const q = QUIZ_QUESTIONS[index];
+    quizStage.innerHTML = '';
+    hideQuizFeedback();
+
+    const wrap = document.createElement('div');
+    wrap.className = 'quiz-question';
+    wrap.dataset.qid = String(q.id);
+
+    const title = document.createElement('p');
+    title.className = 'quiz-q-text';
+    title.textContent = q.question;
+    wrap.appendChild(title);
+
+    if (q.type === 'pin') {
+      const pinWrap = document.createElement('div');
+      pinWrap.className = 'quiz-pin-wrap';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'quiz-pin-input';
+      input.inputMode = 'numeric';
+      input.maxLength = 8;
+      input.placeholder = q.placeholder || '****';
+      input.setAttribute('aria-label', q.question);
+      input.autocomplete = 'off';
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'quiz-pin-btn';
+      btn.textContent = q.submitLabel || '\u05d1\u05d3\u05d9\u05e7\u05d4';
+
+      function submitPin() {
+        if (quizLocked) return;
+        const val = String(input.value || '').trim().replace(/\s+/g, '');
+        if (val === String(q.correctAnswer)) {
+          onCorrect(null);
+        } else {
+          input.classList.add('is-error');
+          showQuizFeedback(MSG.wrong, false);
+          window.setTimeout(function () {
+            input.classList.remove('is-error');
+          }, 500);
+        }
+      }
+
+      btn.addEventListener('click', submitPin);
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitPin();
+        }
+      });
+
+      pinWrap.appendChild(input);
+      pinWrap.appendChild(btn);
+      wrap.appendChild(pinWrap);
+
+      quizStage.appendChild(wrap);
+      requestAnimationFrame(function () {
+        wrap.classList.add('is-active');
+        input.focus();
+      });
+      return;
+    }
+
+    const list = document.createElement('div');
+    list.className = 'quiz-options';
+    list.setAttribute('role', 'group');
+    list.setAttribute('aria-label', q.question);
+
+    q.options.forEach(function (label, i) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'quiz-option';
+      btn.textContent = label;
+      btn.addEventListener('click', function () {
+        if (quizLocked) return;
+        if (i === q.correctIndex) {
+          onCorrect(btn);
+        } else {
+          btn.classList.add('is-wrong');
+          showQuizFeedback(MSG.wrong, false);
+          window.setTimeout(function () {
+            btn.classList.remove('is-wrong');
+          }, 500);
+        }
+      });
+      list.appendChild(btn);
+    });
+
+    wrap.appendChild(list);
+    quizStage.appendChild(wrap);
+    requestAnimationFrame(function () {
+      wrap.classList.add('is-active');
+    });
+  }
+
+  function onCorrect(correctBtn) {
+    quizLocked = true;
+    if (correctBtn) correctBtn.classList.add('is-correct');
+
+    const msg = MSG.correct[quizIndex % MSG.correct.length];
+    showQuizFeedback(msg, true);
+    spawnMiniHearts();
+
+    const current = quizStage.querySelector('.quiz-question');
+
+    window.setTimeout(function () {
+      if (current) current.classList.add('is-exit');
+
+      window.setTimeout(function () {
+        quizIndex += 1;
+        if (quizIndex >= QUIZ_QUESTIONS.length) {
+          finishQuiz();
+          return;
+        }
+        quizLocked = false;
+        updateProgress();
+        renderQuestion(quizIndex);
+      }, 420);
+    }, 900);
+  }
+
+  function showQuizFeedback(text, success) {
+    quizFeedback.hidden = false;
+    quizFeedback.textContent = text;
+    quizFeedback.classList.toggle('is-success', !!success);
+  }
+
+  function hideQuizFeedback() {
+    quizFeedback.hidden = true;
+    quizFeedback.textContent = '';
+    quizFeedback.classList.remove('is-success');
+  }
+
+  function spawnMiniHearts() {
+    const layer = document.createElement('div');
+    layer.className = 'quiz-mini-hearts';
+    for (let i = 0; i < 10; i++) {
+      const h = document.createElement('span');
+      h.className = 'quiz-mini-heart';
+      h.textContent = i % 2 === 0 ? '\u2764' : '\u2726';
+      h.style.color = i % 2 === 0 ? '#B76E79' : '#E8D5A3';
+      h.style.setProperty('--qx', (Math.random() - 0.5) * 160 + 'px');
+      h.style.setProperty('--qy', -40 - Math.random() * 100 + 'px');
+      h.style.animationDelay = Math.random() * 0.2 + 's';
+      layer.appendChild(h);
+    }
+    quizStage.appendChild(layer);
+    window.setTimeout(function () {
+      layer.remove();
+    }, 1100);
+  }
+
+  // ——— Quiz complete -> Story ———
+  function finishQuiz() {
+    quizProgressFill.style.width = '100%';
+    playGrandCelebration();
+
+    window.setTimeout(function () {
+      quizSection.classList.remove('is-entering');
+      quizSection.classList.add('is-leaving');
+
+      window.setTimeout(function () {
+        quizSection.setAttribute('hidden', '');
+        quizSection.style.display = 'none';
 
         storySection.hidden = false;
         void storySection.offsetWidth;
@@ -103,30 +403,30 @@
 
         initScrollReveals();
         initParallax();
-
         window.scrollTo(0, 0);
       }, 850);
-    }, 1400);
+    }, 2200);
   }
 
-  function playHeartSplash() {
-    successSplash.classList.add('is-active');
-    successSplash.setAttribute('aria-hidden', 'false');
-    splashHearts.innerHTML = '';
+  function playGrandCelebration() {
+    quizCelebrate.classList.add('is-active');
+    quizCelebrate.setAttribute('aria-hidden', 'false');
+    celebrateBurst.innerHTML = '';
 
-    const count = 18;
-    for (let i = 0; i < count; i++) {
-      const heart = document.createElement('span');
-      heart.className = 'splash-heart';
-      heart.textContent = i % 3 === 0 ? '✦' : '❤';
-      heart.style.left = 35 + Math.random() * 30 + '%';
-      heart.style.top = 40 + Math.random() * 20 + '%';
-      heart.style.fontSize = 0.9 + Math.random() * 1.4 + 'rem';
-      heart.style.color = i % 2 === 0 ? '#B76E79' : '#E8D5A3';
-      heart.style.setProperty('--hx', (Math.random() - 0.5) * 280 + 'px');
-      heart.style.setProperty('--hy', -80 - Math.random() * 220 + 'px');
-      heart.style.animationDelay = Math.random() * 0.35 + 's';
-      splashHearts.appendChild(heart);
+    const symbols = ['\u2764', '\u2726', '\u2728', '\u2764', '\u2726'];
+    for (let i = 0; i < 36; i++) {
+      const p = document.createElement('span');
+      p.className = 'burst-piece';
+      p.textContent = symbols[i % symbols.length];
+      p.style.fontSize = 0.9 + Math.random() * 1.6 + 'rem';
+      p.style.color = i % 2 === 0 ? '#B76E79' : '#E8D5A3';
+      const angle = (Math.PI * 2 * i) / 36;
+      const dist = 80 + Math.random() * 180;
+      p.style.setProperty('--bx', Math.cos(angle) * dist + 'px');
+      p.style.setProperty('--by', Math.sin(angle) * dist + 'px');
+      p.style.setProperty('--br', (Math.random() * 80 - 40) + 'deg');
+      p.style.animationDelay = Math.random() * 0.35 + 's';
+      celebrateBurst.appendChild(p);
     }
   }
 
@@ -173,7 +473,6 @@
     let ticking = false;
 
     function update() {
-      const scrollY = window.scrollY || window.pageYOffset;
       nodes.forEach(function (node) {
         const speed = parseFloat(node.getAttribute('data-parallax')) || 0.1;
         const rect = node.getBoundingClientRect();
@@ -294,10 +593,7 @@
       rafId = requestAnimationFrame(tick);
     }
 
-    window.addEventListener('resize', function () {
-      init();
-    });
-
+    window.addEventListener('resize', init);
     init();
     tick();
 

@@ -1818,6 +1818,180 @@ body.is-locked {
   display: none !important;
 }
 
+
+/* ---------- Personal Dashboard ---------- */
+
+.personal-dashboard {
+  text-align: center;
+}
+
+.dash-grid {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.35rem;
+}
+
+@media (min-width: 560px) {
+  .dash-grid {
+    grid-template-columns: 1fr 1.2fr;
+    align-items: stretch;
+    text-align: right;
+  }
+}
+
+.dash-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem;
+  border-radius: 0.9rem;
+  background: rgba(7, 11, 20, 0.45);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  text-align: right;
+}
+
+.dash-avatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Frank Ruhl Libre', serif;
+  font-size: 1.5rem;
+  color: var(--midnight-950);
+  background: linear-gradient(135deg, var(--champagne-soft), var(--rosegold));
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25);
+}
+
+.dash-profile-name {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--champagne-soft);
+  margin-bottom: 0.4rem;
+}
+
+.dash-profile-meta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dash-profile-meta li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(245, 239, 230, 0.75);
+}
+
+.dash-profile-meta span {
+  color: rgba(245, 239, 230, 0.45);
+}
+
+.dash-profile-meta strong {
+  font-weight: 500;
+  color: var(--cream);
+}
+
+.dash-timer-wrap {
+  padding: 1rem 0.75rem;
+  border-radius: 0.9rem;
+  background: rgba(7, 11, 20, 0.35);
+  border: 1px solid rgba(212, 175, 55, 0.16);
+}
+
+.dash-mini-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--champagne-soft);
+  margin-bottom: 0.75rem;
+}
+
+.dash-timer-sub {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.dash-quotes {
+  margin-top: 0.25rem;
+}
+
+.quote-card {
+  min-height: 96px;
+  padding: 1.15rem 1rem;
+  margin-bottom: 0.85rem;
+  border-radius: 0.9rem;
+  background: linear-gradient(145deg, rgba(183, 110, 121, 0.16), rgba(7, 11, 20, 0.5));
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.35s var(--ease-soft), transform 0.45s var(--ease-out-expo);
+}
+
+.quote-card.is-fading {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.quote-card p {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: rgba(245, 239, 230, 0.9);
+}
+
+.quote-btn {
+  max-width: 260px;
+}
+
+/* Voucher admin */
+.voucher-admin {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.voucher-admin-btn {
+  background: transparent;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--champagne-soft);
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.3s, border-color 0.3s, transform 0.3s;
+}
+
+.voucher-admin-btn:hover {
+  background: rgba(212, 175, 55, 0.1);
+  border-color: var(--champagne);
+  transform: translateY(-1px);
+}
+
+.voucher-admin-hint {
+  font-size: 0.8rem;
+  color: var(--rosegold-soft);
+  min-height: 1.2em;
+}
+
+.voucher-admin-hint[hidden] {
+  display: none;
+}
+
+.voucher-admin-hint.is-ok {
+  color: var(--champagne-soft);
+}
+
 /* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {

@@ -573,7 +573,31 @@
     { id: 'v4', text: 'יום כיף מפנק ורגוע רק שנינו' },
   ];
 
-  const LS_VOUCHER = 'avital_voucher_v1';
+  const LS_VOUCHER = 'avital_voucher_v2';
+  const ADMIN_CODE = '1105';
+
+  const LOVE_QUOTES = [
+    'כל פעם שאני חושב עלייך, העולם פתאום מרגיש קצת יותר טוב.',
+    'את לא סתם בחורה בחיי — את הבית שאליו הלב שלי חוזר.',
+    'יש אנשים שמדברים על אהבה. איתך אני פשוט מרגיש אותה.',
+    'החיוך שלך עושה לי סדר גם בימים הכי מבולגנים.',
+    'אני אוהב אותך בגרסה השקטה, בגרסה הצוחקת, ובגרסה האמיתית ביותר שלך.',
+    'את ההוכחה שלי שגם הודעה אחת בפייסבוק יכולה לשנות חיים.',
+    'תודה שאת נותנת לי מקום בלב שלך — זה המקום הכי יקר לי.',
+    'איתך אני מרגיש שאפשר גם לעוף וגם לנחות בבטחה.',
+    'את החזקה והרכה באותו זמן, וזה פשוט מדהים.',
+    'כל שיחה איתך מרגישה כמו חיבוק במילים.',
+    'אני גאה בך יותר ממה שמילים יכולות להחזיק.',
+    'הלב שלי מכיר אותך גם כשאת שותקת.',
+    'את מלמדת אותי לאהוב טוב יותר, בכל יום מחדש.',
+    'גם מרחוק, את קרובה אליי יותר מהכל.',
+    'יש לי מזל שדווקא אותך פגשתי בדרך.',
+    'את האור הוורוד שאני בוחר לראות בעולם.',
+    'אוהב את האמת שלך, את הצחוק שלך, ואת מי שאת כשאת פשוט את.',
+    'בשבילי את לא עוד פרק — את כל הספר.',
+    'אם אהבה הייתה מקום, הייתי בונה בו בית איתך.',
+    'אני כאן. תמיד. גם כשקשה, גם כשכיף, ובעיקר כשצריך לב.',
+  ];
 
   const letterExtras = document.getElementById('letter-extras');
   const reasonCard = document.getElementById('reason-card');
@@ -581,9 +605,15 @@
   const reasonBtn = document.getElementById('reason-btn');
   const vouchersGrid = document.getElementById('vouchers-grid');
   const voucherLockMsg = document.getElementById('voucher-lock-msg');
+  const voucherAdminBtn = document.getElementById('voucher-admin-btn');
+  const voucherAdminHint = document.getElementById('voucher-admin-hint');
+  const quoteCard = document.getElementById('quote-card');
+  const quoteText = document.getElementById('quote-text');
+  const quoteBtn = document.getElementById('quote-btn');
 
   let timerInterval = null;
   let lastReasonIndex = -1;
+  let lastQuoteIndex = -1;
 
   function pad2(n) {
     return String(n).padStart(2, '0');
@@ -623,8 +653,9 @@
     letterExtras.classList.add('is-visible');
     startTogetherTimer();
     initReasons();
+    initLoveQuotes();
+    initAdminUnlock();
 
-    // Wait a frame so voucher cards have layout size for canvas
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         initVouchers();
@@ -659,19 +690,141 @@
     });
   }
 
+  function initLoveQuotes() {
+    if (!quoteBtn || quoteBtn.dataset.bound) return;
+    quoteBtn.dataset.bound = '1';
+    quoteBtn.addEventListener('click', function () {
+      let idx = Math.floor(Math.random() * LOVE_QUOTES.length);
+      if (LOVE_QUOTES.length > 1) {
+        while (idx === lastQuoteIndex) {
+          idx = Math.floor(Math.random() * LOVE_QUOTES.length);
+        }
+      }
+      lastQuoteIndex = idx;
+      if (quoteCard) quoteCard.classList.add('is-fading');
+      window.setTimeout(function () {
+        if (quoteText) quoteText.textContent = LOVE_QUOTES[idx];
+        if (quoteCard) quoteCard.classList.remove('is-fading');
+      }, 280);
+    });
+  }
+
+  function defaultVoucherState() {
+    return { extraSlots: 0, scratched: {} };
+  }
+
   function readVoucherState() {
     try {
       const raw = localStorage.getItem(LS_VOUCHER);
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) {
-      return null;
-    }
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          if (!parsed.scratched) parsed.scratched = {};
+          if (typeof parsed.extraSlots !== 'number') parsed.extraSlots = 0;
+          return parsed;
+        }
+      }
+      // migrate legacy v1 format { id, redeemed }
+      const legacy = localStorage.getItem('avital_voucher_v1');
+      if (legacy) {
+        const old = JSON.parse(legacy);
+        if (old && old.id) {
+          const migrated = {
+            extraSlots: 0,
+            scratched: {},
+          };
+          migrated.scratched[old.id] = {
+            redeemed: !!old.redeemed,
+            at: old.at || Date.now(),
+          };
+          writeVoucherState(migrated);
+          return migrated;
+        }
+      }
+    } catch (e) { /* ignore */ }
+    return defaultVoucherState();
   }
 
   function writeVoucherState(state) {
     try {
       localStorage.setItem(LS_VOUCHER, JSON.stringify(state));
     } catch (e) { /* ignore quota */ }
+  }
+
+  function allowedVoucherCount(state) {
+    return 1 + (state.extraSlots || 0);
+  }
+
+  function scratchedCount(state) {
+    return Object.keys(state.scratched || {}).length;
+  }
+
+  function refreshVoucherLocks() {
+    const state = readVoucherState();
+    const allowed = allowedVoucherCount(state);
+    const used = scratchedCount(state);
+    const remaining = Math.max(0, allowed - used);
+
+    if (voucherLockMsg) {
+      if (used >= 1 && remaining === 0) {
+        voucherLockMsg.hidden = false;
+        voucherLockMsg.textContent = 'הגעת למכסת השוברים. אפשר לבקש אישור מנהל לשובר נוסף ✨';
+      } else if (remaining > 0 && used >= 1) {
+        voucherLockMsg.hidden = false;
+        voucherLockMsg.textContent = 'נשאר לך עוד ' + remaining + ' שובר' + (remaining > 1 ? 'ים' : '') + ' לפתוח 🎁';
+      } else if (used === 0) {
+        voucherLockMsg.hidden = false;
+        voucherLockMsg.textContent = 'בחרי שובר אחד, גרדי אותו וצלמי לי מסך כדי לממש!';
+      } else {
+        voucherLockMsg.hidden = true;
+      }
+    }
+
+    if (!vouchersGrid) return;
+    vouchersGrid.querySelectorAll('.voucher-card').forEach(function (c) {
+      const id = c.dataset.id;
+      const isScratched = !!(state.scratched && state.scratched[id]);
+      if (isScratched) {
+        c.classList.remove('is-disabled');
+        c.classList.add('is-chosen');
+      } else if (remaining <= 0) {
+        c.classList.add('is-disabled');
+      } else {
+        c.classList.remove('is-disabled');
+      }
+    });
+
+    if (voucherAdminHint && state.extraSlots > 0) {
+      // keep last success message if any
+    }
+  }
+
+  function initAdminUnlock() {
+    if (!voucherAdminBtn || voucherAdminBtn.dataset.bound) return;
+    voucherAdminBtn.dataset.bound = '1';
+    voucherAdminBtn.addEventListener('click', function () {
+      const code = window.prompt('הכניסי קוד אישור מנהל:');
+      if (code === null) return;
+      const normalized = String(code).trim();
+      if (normalized === ADMIN_CODE) {
+        const state = readVoucherState();
+        state.extraSlots = (state.extraSlots || 0) + 1;
+        writeVoucherState(state);
+        refreshVoucherLocks();
+        if (voucherAdminHint) {
+          voucherAdminHint.hidden = false;
+          voucherAdminHint.classList.add('is-ok');
+          voucherAdminHint.textContent =
+            'אושר! נפתח לך שובר נוסף אחד (' + allowedVoucherCount(state) + ' סה״כ) 🔑';
+        }
+      } else {
+        if (voucherAdminHint) {
+          voucherAdminHint.hidden = false;
+          voucherAdminHint.classList.remove('is-ok');
+          voucherAdminHint.textContent = 'קוד שגוי... נסי שוב 😉';
+        }
+      }
+    });
   }
 
   function initVouchers() {
@@ -715,9 +868,7 @@
       setupScratchCard(card, canvas, hint, statusBtn, v, saved);
     });
 
-    if (saved && saved.id) {
-      if (voucherLockMsg) voucherLockMsg.hidden = false;
-    }
+    refreshVoucherLocks();
   }
 
   function setupScratchCard(card, canvas, hint, statusBtn, voucher, saved) {
@@ -744,8 +895,6 @@
       ctx.globalCompositeOperation = 'source-over';
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
-
-      // subtle shimmer pattern
       ctx.fillStyle = 'rgba(255,255,255,0.12)';
       for (let i = -h; i < w + h; i += 14) {
         ctx.beginPath();
@@ -774,7 +923,7 @@
       if (!w || !h) return 0;
       const data = ctx.getImageData(0, 0, w, h).data;
       let clear = 0;
-      const step = 4 * 8; // sample every 8px
+      const step = 4 * 8;
       for (let i = 3; i < data.length; i += step) {
         if (data[i] < 128) clear += 1;
       }
@@ -790,9 +939,14 @@
       hint.style.opacity = '0';
       statusBtn.hidden = false;
       setRedeemedUI(!!redeemed);
-      writeVoucherState({ id: voucher.id, redeemed: !!redeemed, at: Date.now() });
-      lockOtherVouchers(voucher.id);
-      if (voucherLockMsg) voucherLockMsg.hidden = false;
+
+      const state = readVoucherState();
+      state.scratched[voucher.id] = {
+        redeemed: !!redeemed,
+        at: Date.now(),
+      };
+      writeVoucherState(state);
+      refreshVoucherLocks();
     }
 
     function setRedeemedUI(redeemed) {
@@ -805,49 +959,41 @@
       }
     }
 
-    function lockOtherVouchers(chosenId) {
-      vouchersGrid.querySelectorAll('.voucher-card').forEach(function (c) {
-        if (c.dataset.id !== chosenId) {
-          c.classList.add('is-disabled');
-        }
-      });
-    }
-
     function canScratch() {
       const state = readVoucherState();
-      if (!state) return true;
-      return state.id === voucher.id;
+      if (state.scratched[voucher.id]) return true;
+      return scratchedCount(state) < allowedVoucherCount(state);
     }
 
     statusBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       const state = readVoucherState();
-      if (!state || state.id !== voucher.id) return;
-      const next = !state.redeemed;
-      writeVoucherState({ id: voucher.id, redeemed: next, at: Date.now() });
+      if (!state.scratched[voucher.id]) return;
+      const next = !state.scratched[voucher.id].redeemed;
+      state.scratched[voucher.id].redeemed = next;
+      state.scratched[voucher.id].at = Date.now();
+      writeVoucherState(state);
       setRedeemedUI(next);
     });
 
-    // Restore from localStorage
-    if (saved && saved.id === voucher.id) {
-      revealCard(!!saved.redeemed);
-      // fully clear canvas
-      const rect = card.getBoundingClientRect();
-      resizeCanvas();
-      ctx.clearRect(0, 0, rect.width || canvas.width, rect.height || canvas.height);
+    // Restore
+    if (saved.scratched && saved.scratched[voucher.id]) {
+      const entry = saved.scratched[voucher.id];
+      revealed = true;
+      card.classList.add('is-revealed', 'is-chosen');
       canvas.classList.add('is-done');
-    } else if (saved && saved.id !== voucher.id) {
-      card.classList.add('is-disabled');
+      hint.style.opacity = '0';
+      statusBtn.hidden = false;
+      setRedeemedUI(!!entry.redeemed);
       resizeCanvas();
+      const rect = card.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width || canvas.width, rect.height || canvas.height);
     } else {
       resizeCanvas();
     }
 
     function onStart(e) {
       if (revealed || !canScratch()) return;
-      // If another card already chosen somehow
-      const state = readVoucherState();
-      if (state && state.id !== voucher.id) return;
       scratching = true;
       card.classList.add('is-scratching');
       const point = e.touches ? e.touches[0] : e;
@@ -884,6 +1030,7 @@
       if (!revealed) resizeCanvas();
     });
   }
+
 
 
   function goToStory() {

@@ -173,35 +173,7 @@
 
       <!-- Post-letter extras (shown after letter opens) -->
       <div id="letter-extras" class="letter-extras" hidden>
-        <!-- 1. Live Time Counter -->
-        <section class="extra-block glass-soft reveal-extra" aria-label="כמה זמן אנחנו יחד">
-          <p class="extra-eyebrow">מאז הרגע הראשון</p>
-          <h3 class="extra-title font-serif">כמה זמן אנחנו יחד</h3>
-          <div class="time-counter" id="time-counter" dir="ltr">
-            <div class="time-unit">
-              <span class="time-value" id="tc-days">0</span>
-              <span class="time-label">ימים</span>
-            </div>
-            <span class="time-sep" aria-hidden="true">:</span>
-            <div class="time-unit">
-              <span class="time-value" id="tc-hours">00</span>
-              <span class="time-label">שעות</span>
-            </div>
-            <span class="time-sep" aria-hidden="true">:</span>
-            <div class="time-unit">
-              <span class="time-value" id="tc-mins">00</span>
-              <span class="time-label">דקות</span>
-            </div>
-            <span class="time-sep" aria-hidden="true">:</span>
-            <div class="time-unit">
-              <span class="time-value" id="tc-secs">00</span>
-              <span class="time-label">שניות</span>
-            </div>
-          </div>
-          <p class="extra-sub">וממשיכים לספור כל שנייה בכיף... ❤</p>
-        </section>
-
-        <!-- 2. Reasons Wheel / Random Card -->
+<!-- 2. Reasons Wheel / Random Card -->
         <section class="extra-block glass-soft reveal-extra" aria-label="גלגל הסיבות">
           <p class="extra-eyebrow">רק בשבילך</p>
           <h3 class="extra-title font-serif">גלגל הסיבות שאני אוהב אותך</h3>
@@ -224,6 +196,69 @@
           <p class="voucher-lock-msg" id="voucher-lock-msg" hidden>כבר בחרת שובר — שמור עליו היטב ✨</p>
           <div class="vouchers-grid" id="vouchers-grid">
             <!-- filled by JS -->
+          </div>
+
+          <div class="voucher-admin">
+            <button type="button" class="voucher-admin-btn" id="voucher-admin-btn">אישור מנהל 🔑</button>
+            <p class="voucher-admin-hint" id="voucher-admin-hint" hidden></p>
+          </div>
+
+        </section>
+
+
+        <!-- Personal Dashboard -->
+        <section class="extra-block glass-soft personal-dashboard reveal-extra" id="personal-dashboard" aria-label="אזור אישי">
+          <p class="extra-eyebrow">רק שלך</p>
+          <h3 class="extra-title font-serif">האזור האישי שלי</h3>
+
+          <div class="dash-grid">
+            <div class="dash-profile">
+              <div class="dash-avatar" aria-hidden="true">א</div>
+              <div class="dash-profile-body">
+                <p class="dash-profile-name font-serif">אביטל ביטון</p>
+                <ul class="dash-profile-meta">
+                  <li><span>טלפון</span><strong dir="ltr">0547866885</strong></li>
+                  <li><span>יום הולדת</span><strong dir="ltr">05.11.2000</strong></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="dash-timer-wrap">
+              <p class="dash-mini-label">הזמן שלנו יחד</p>
+              <div class="time-counter" id="time-counter" dir="ltr">
+                <div class="time-unit">
+                  <span class="time-value" id="tc-days">0</span>
+                  <span class="time-label">ימים</span>
+                </div>
+                <span class="time-sep" aria-hidden="true">:</span>
+                <div class="time-unit">
+                  <span class="time-value" id="tc-hours">00</span>
+                  <span class="time-label">שעות</span>
+                </div>
+                <span class="time-sep" aria-hidden="true">:</span>
+                <div class="time-unit">
+                  <span class="time-value" id="tc-mins">00</span>
+                  <span class="time-label">דקות</span>
+                </div>
+                <span class="time-sep" aria-hidden="true">:</span>
+                <div class="time-unit">
+                  <span class="time-value" id="tc-secs">00</span>
+                  <span class="time-label">שניות</span>
+                </div>
+              </div>
+              <p class="extra-sub dash-timer-sub">מאז 28.09.2025 · וממשיכים לספור ❤</p>
+            </div>
+          </div>
+
+          <div class="dash-quotes">
+            <p class="dash-mini-label">משפטי אהבה מתחלפים</p>
+            <div class="quote-card" id="quote-card" aria-live="polite">
+              <p id="quote-text">לחצי כדי לקבל משפט אהבה...</p>
+            </div>
+            <button type="button" class="reason-btn quote-btn" id="quote-btn">
+              <span class="btn-shimmer" aria-hidden="true"></span>
+              <span>משפט אהבה חדש 💖</span>
+            </button>
           </div>
         </section>
 
@@ -303,13 +338,13 @@
             <div class="timeline-media">
               <div class="image-placeholder image-placeholder--sm">
                 <span class="placeholder-icon">&#127769;</span>
-                <span class="placeholder-label">דייט ראשון</span>
+                <span class="placeholder-label">מפגש סודי</span>
               </div>
             </div>
             <div class="timeline-body">
-              <span class="timeline-tag">רגע מכונן</span>
-              <h3 class="font-serif">הדייט הראשון</h3>
-              <p>הפעם הראשונה שראינו אחד את השנייה באמת — ופתאום הכל הרגיש בית.</p>
+              <span class="timeline-tag">סוד קטן</span>
+              <h3 class="font-serif">המפגש הסודי</h3>
+              <p>לא דייט רגיל — מפגש סודי רק שלנו. רגע שקט, חיוך גנוב, וסוד קטן שנשאר בינינו מאז.</p>
             </div>
           </div>
         </li>

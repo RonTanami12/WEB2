@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>אביטל ואני — השנה הראשונה</title>
+  <meta name="description" content="אתר מיוחד לאביטל ביטון — שנה של אהבה" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            midnight: {
+              950: '#070B14',
+              900: '#0B1220',
+              800: '#121C2F',
+              700: '#1A2740',
+            },
+            rosegold: {
+              DEFAULT: '#B76E79',
+              light: '#D4A5AB',
+              soft: '#E8C4C8',
+            },
+            champagne: {
+              DEFAULT: '#D4AF37',
+              soft: '#E8D5A3',
+              muted: '#C9A84C',
+            },
+          },
+          fontFamily: {
+            serif: ['"Frank Ruhl Libre"', 'serif'],
+            sans: ['Heebo', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="font-sans text-white antialiased overflow-x-hidden">
+
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <div class="ambient ambient-1" aria-hidden="true"></div>
+  <div class="ambient ambient-2" aria-hidden="true"></div>
+  <div class="ambient ambient-3" aria-hidden="true"></div>
+
+  <!-- SECTION 1: Login -->
+  <section id="login-section" class="section-screen" aria-label="מסך כניסה">
+    <div class="login-shell">
+      <div class="login-card glass reveal-up" id="login-card">
+        <div class="ornament" aria-hidden="true">
+          <span class="ornament-line"></span>
+          <span class="ornament-diamond"></span>
+          <span class="ornament-line"></span>
+        </div>
+
+        <p class="login-eyebrow reveal-up delay-1">פרק ראשון</p>
+
+        <h1 class="login-title font-serif reveal-up delay-2">
+          ברוכה הבאה לפרק הראשון
+          <span class="heart-accent" aria-hidden="true">❤</span>
+        </h1>
+
+        <p class="login-subtitle reveal-up delay-3">
+          כדי להתחיל את המשחק, אנא הכניסי את קוד הגישה שלך
+        </p>
+
+        <form id="access-form" class="access-form reveal-up delay-4" autocomplete="off" novalidate>
+          <label for="access-code" class="sr-only">קוד גישה</label>
+          <div class="input-wrap">
+            <input
+              type="text"
+              id="access-code"
+              name="access-code"
+              class="access-input"
+              placeholder="הכניסי מספר טלפון או תאריך לידה (DD.MM.YYYY)"
+              inputmode="text"
+              maxlength="20"
+              required
+              aria-describedby="error-message"
+            />
+          </div>
+
+          <p id="error-message" class="error-message" role="alert" aria-live="polite" hidden>
+            חם... אבל לא מדויק 😉 נסי שוב
+          </p>
+
+          <button type="submit" id="enter-btn" class="enter-btn">
+            <span class="btn-shimmer" aria-hidden="true"></span>
+            <span class="btn-label">כניסה למשחק</span>
+          </button>
+        </form>
+
+        <div class="ornament ornament-bottom" aria-hidden="true">
+          <span class="ornament-line"></span>
+          <span class="ornament-diamond"></span>
+          <span class="ornament-line"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="success-splash" class="success-splash" aria-hidden="true">
+      <div class="splash-hearts" id="splash-hearts"></div>
+      <p class="splash-text font-serif">נפתח בשבילך…</p>
+    </div>
+  </section>
+
+  <!-- SECTION 2: Our Story -->
+  <section id="story-section" class="story-section" aria-label="הסיפור שלנו" hidden>
+    <header class="story-hero">
+      <div class="story-hero-inner" data-parallax="0.15">
+        <p class="story-eyebrow reveal-story">שנה שלמה · לב אחד</p>
+        <h1 class="story-title font-serif reveal-story">
+          אביטל ואני:<br />השנה הראשונה שלנו
+        </h1>
+        <p class="story-lead reveal-story">
+          מהודעה אחת בפייסבוק — ועד לרגע הזה. כל צעד, כל חיוך, כל זיכרון.
+        </p>
+        <div class="scroll-hint reveal-story" aria-hidden="true">
+          <span>גללי למטה</span>
+          <span class="scroll-arrow"></span>
+        </div>
+      </div>
+    </header>
+
+    <article class="story-block" data-parallax="0.08">
+      <div class="story-block-inner glass-soft reveal-story">
+        <div class="block-media">
+          <div class="image-placeholder" role="img" aria-label="מקום לתמונה שלנו">
+            <span class="placeholder-icon" aria-hidden="true">✦</span>
+            <span class="placeholder-label">כאן תבוא התמונה שלנו</span>
+          </div>
+        </div>
+        <div class="block-copy">
+          <h2 class="font-serif">איך הכל התחיל</h2>
+          <p>
+            לפני שנה בדיוק, הודעה אחת בפייסבוק שינתה הכל.
+            לא ידענו אז שמהשיחה הראשונה הזו תצמח שנה שלמה של אהבה,
+            צחוק, הרפתקאות — ושלנו.
+          </p>
+          <p>
+            אביטל ביטון, זו את. והסיפור הזה נכתב בשבילך.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <section class="timeline-section" aria-label="ציר הזמן שלנו">
+      <h2 class="timeline-heading font-serif reveal-story">המסע שלנו</h2>
+      <p class="timeline-sub reveal-story">שלושה רגעים שסימנו את השנה הראשונה</p>
+
+      <ol class="timeline">
+        <li class="timeline-item reveal-story">
+          <div class="timeline-marker" aria-hidden="true">
+            <span class="marker-dot"></span>
+            <span class="marker-ring"></span>
+          </div>
+          <div class="timeline-card glass-soft">
+            <div class="timeline-media">
+              <div class="image-placeholder image-placeholder--sm">
+                <span class="placeholder-icon">💌</span>
+                <span class="placeholder-label">פייסבוק</span>
+              </div>
+            </div>
+            <div class="timeline-body">
+              <span class="timeline-tag">התחלה</span>
+              <h3 class="font-serif">נפגשנו בפייסבוק</h3>
+              <p>
+                הודעה. חיוך. שיחה שנמשכה עד מאוחר.
+                לא ידענו שעוד רגע נהפוך ל״אנחנו״.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="timeline-item reveal-story">
+          <div class="timeline-marker" aria-hidden="true">
+            <span class="marker-dot"></span>
+            <span class="marker-ring"></span>
+          </div>
+          <div class="timeline-card glass-soft">
+            <div class="timeline-media">
+              <div class="image-placeholder image-placeholder--sm">
+                <span class="placeholder-icon">🌙</span>
+                <span class="placeholder-label">דייט ראשון</span>
+              </div>
+            </div>
+            <div class="timeline-body">
+              <span class="timeline-tag">רגע מכונן</span>
+              <h3 class="font-serif">הדייט הראשון</h3>
+              <p>
+                הפעם הראשונה שראינו אחד את השנייה באמת —
+                ופתאום הכל הרגיש בית.
+              </p>
+            </div>
+          </div>
+        </li>
+
+        <li class="timeline-item reveal-story">
+          <div class="timeline-marker" aria-hidden="true">
+            <span class="marker-dot"></span>
+            <span class="marker-ring"></span>
+          </div>
+          <div class="timeline-card glass-soft">
+            <div class="timeline-media">
+              <div class="image-placeholder image-placeholder--sm">
+                <span class="placeholder-icon">💍</span>
+                <span class="placeholder-label">שנה</span>
+              </div>
+            </div>
+            <div class="timeline-body">
+              <span class="timeline-tag">היום</span>
+              <h3 class="font-serif">שנה של אהבה</h3>
+              <p>
+                שנה שלמה יחד. אלפי רגעים קטנים שהפכו לסיפור הגדול שלנו —
+                ועוד הרבה פרקים מחכים להיכתב.
+              </p>
+            </div>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <footer class="story-closing reveal-story">
+      <div class="closing-ornament" aria-hidden="true">
+        <span class="ornament-line"></span>
+        <span class="ornament-diamond"></span>
+        <span class="ornament-line"></span>
+      </div>
+      <p class="closing-text font-serif">
+        אביטל יקרה,<br />
+        תודה שאת בוחרת בי כל יום מחדש.<br />
+        אוהב אותך — לשנה הבאה, ולתמיד.
+      </p>
+      <p class="closing-signature">— שלך</p>
+    </footer>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>

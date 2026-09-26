@@ -135,6 +135,50 @@
     </div>
   </section>
 
+
+  <!-- SECTION: Unlocking Love Letter -->
+  <section id="letter-section" class="section-screen letter-section" aria-label="המכתב" hidden>
+    <div class="letter-scene" id="letter-scene">
+      <!-- Closed envelope -->
+      <button type="button" class="envelope" id="envelope" aria-label="לחצי כדי לפתוח את המכתב">
+        <div class="envelope-shadow" aria-hidden="true"></div>
+        <div class="envelope-inner">
+          <div class="envelope-flap" aria-hidden="true"></div>
+          <div class="envelope-pocket" aria-hidden="true"></div>
+          <div class="envelope-front">
+            <div class="wax-seal" aria-hidden="true">
+              <span class="wax-heart">❤</span>
+            </div>
+            <p class="envelope-to font-serif">לאביטל שלי ❤</p>
+            <p class="envelope-hint">לחצי כדי לפתוח את המכתב...</p>
+          </div>
+        </div>
+      </button>
+
+      <!-- Opened letter paper -->
+      <article class="love-letter glass-letter" id="love-letter" aria-live="polite" hidden>
+        <div class="letter-ornament" aria-hidden="true">
+          <span class="ornament-line"></span>
+          <span class="ornament-diamond"></span>
+          <span class="ornament-line"></span>
+        </div>
+        <h2 class="letter-title font-serif" id="letter-title"></h2>
+        <div class="letter-body" id="letter-body"></div>
+        <div class="letter-ornament letter-ornament-bottom" aria-hidden="true">
+          <span class="ornament-line"></span>
+          <span class="ornament-diamond"></span>
+          <span class="ornament-line"></span>
+        </div>
+        <button type="button" class="continue-story-btn" id="continue-story-btn" hidden>
+          <span class="btn-shimmer" aria-hidden="true"></span>
+          <span>המשך לסיפור שלנו</span>
+        </button>
+      </article>
+    </div>
+
+    <div id="letter-confetti" class="letter-confetti" aria-hidden="true"></div>
+  </section>
+
   <!-- SECTION 2: Our Story -->
   <section id="story-section" class="story-section" aria-label="הסיפור שלנו" hidden>
     <header class="story-hero">

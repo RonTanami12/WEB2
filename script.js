@@ -111,6 +111,13 @@
   const quizProgressBar = document.getElementById('quiz-progress-bar');
   const quizCelebrate = document.getElementById('quiz-celebrate');
   const celebrateBurst = document.getElementById('celebrate-burst');
+  const letterSection = document.getElementById('letter-section');
+  const envelope = document.getElementById('envelope');
+  const loveLetter = document.getElementById('love-letter');
+  const letterTitleEl = document.getElementById('letter-title');
+  const letterBodyEl = document.getElementById('letter-body');
+  const continueStoryBtn = document.getElementById('continue-story-btn');
+  const letterConfetti = document.getElementById('letter-confetti');
 
   let quizIndex = 0;
   let quizLocked = false;
@@ -382,9 +389,28 @@
   }
 
   // ——— Quiz complete -> Story ———
+
+  // ——— Love Letter content (edit freely) ———
+  const LETTER = {
+    title: 'אביטל אהובתי ❤',
+    paragraphs: [
+      'קודם כל אני רוצה להגיד לך שאני את האמת לא יודע מאיפה להתחיל... תקחי אותי אחורה, אולי אני באמת אצליח להגיד מזל טוב קטן כי זה קצת היה פחות מורכב.. אבל עכשיו? איך אומרים? מה אומרים? אף פעם לא הרגשתי ככה.',
+      'אביטל אהובתי, אני באמת באמת קודם כל רוצה לאחל לך שרק תקרעי מצחוק כמו שאני אוהב שאת צוחקת, ושרק תחייכי – כי יש לך חיוך פשוט מושלם, שלא לדבר על המראה. מאחל לך נחת ושקט מהילדים, מהמשפחה ובעיקר מהחיים. תמשיכי לקחת את החיים בקלות, בשמחה, לראות את האור ואת העולם הורוד בכל דבר שקורה לך ובכל תפנית בעלילה שה׳ יתברך שם אותך בה (וכנראה שגם לא סתם, כי רק את יכולה לעבור את זה ולהצליח להמשיך).',
+      'אני מודה עלייך בכל יום שהכרתי אותך. שיש לי איזה שותפה שאפשר לדבר איתה על איחוד או אפילו סתם על החיים, ללמוד איתה דברים, לשתף אותה בדברים הכי מפגרים ביום יום וגם הכי קשים שיש. אני מעריך אותך ברמות ומאחל לכל בחורה בעולם הזה לקחת אותך בתור דמות להשראה, עם הלב הענק שיש לך והאופי המושלם שלך.',
+      'בעולם אחר שנינו נמצאים על איזה יאכטה או בית מלון בחדר מסאז\', אבל כנראה שהמסאז\' היחיד שיהיה זה במאזדה שחורה שבוע הבא... בנתיים גם שם אני מודה שלא אפסיק להתאהב 😉.',
+      'אני מתגעגע אלייך מאוד האמת, וכיף לקחת חלק ואת ההרגשה שהיום זה היום שלך שבאת לעולם – ובעיקר באת לעולם שלי ותפסת בו מקום לא קטן. אני תמיד פה בשבילך להכל, והלוואי שגם לבייביסיטר. אני תמיד אהיה לצידך ותמיד אתמוך בך בהכל – גם בחיים וגם מול כל הבנים שעומדים בדלת ומחכים לך...',
+      'בא לי לתת לך חיבוק ענק ויותר מחיבוק חברי, ופשוט לקחת יין לבן ומשם ימים יגידו 🍷.',
+      'אז המון המון המון מזל טוב! שיהיה לך אושר ועושר בחיים, רק הצלחה בכל מה שאת נוגעת בו ומתעסקת בו בחייך. הלוואי שבעזרת ה\' ירפו ממך גם כל הבנים... אבל האמת שאני מבין אותם, זה ממש קשה ובצדק, אין לי כל כך זכות דיבור על זה.\n\nאני אוהב אותך ברמות, ובעזרת ה\' שבוע הבא לכי תדעי מה תקבלי ❤🫣',
+    ],
+  };
+
+  let letterOpened = false;
+  let typingTimer = null;
+
   function finishQuiz() {
     quizProgressFill.style.width = '100%';
     playGrandCelebration();
+    spawnLetterConfetti();
 
     window.setTimeout(function () {
       quizSection.classList.remove('is-entering');
@@ -394,19 +420,161 @@
         quizSection.setAttribute('hidden', '');
         quizSection.style.display = 'none';
 
-        storySection.hidden = false;
-        void storySection.offsetWidth;
-        storySection.classList.add('is-visible');
-
-        body.classList.remove('is-locked');
-        body.classList.add('is-unlocked');
-
-        initScrollReveals();
-        initParallax();
-        window.scrollTo(0, 0);
+        showLetterStage();
       }, 850);
     }, 2200);
   }
+
+  function showLetterStage() {
+    letterSection.hidden = false;
+    void letterSection.offsetWidth;
+    letterSection.classList.add('is-entering');
+    body.classList.add('is-locked');
+  }
+
+  function spawnLetterConfetti() {
+    if (!letterConfetti) return;
+    letterConfetti.innerHTML = '';
+    const symbols = ['❤', '✦', '✨', '◆', '❤'];
+    const colors = ['#B76E79', '#E8D5A3', '#D4AF37', '#E8C4C8', '#f5efe6'];
+    for (let i = 0; i < 48; i++) {
+      const p = document.createElement('span');
+      p.className = 'confetti-piece';
+      p.textContent = symbols[i % symbols.length];
+      p.style.left = Math.random() * 100 + '%';
+      p.style.color = colors[i % colors.length];
+      p.style.fontSize = 0.7 + Math.random() * 1.1 + 'rem';
+      p.style.animationDelay = Math.random() * 1.2 + 's';
+      p.style.animationDuration = 2.4 + Math.random() * 1.8 + 's';
+      letterConfetti.appendChild(p);
+    }
+    window.setTimeout(function () {
+      letterConfetti.innerHTML = '';
+    }, 5000);
+  }
+
+  if (envelope) {
+    envelope.addEventListener('click', openEnvelope);
+  }
+
+  function openEnvelope() {
+    if (letterOpened) return;
+    letterOpened = true;
+    envelope.disabled = true;
+    envelope.classList.add('is-opening');
+    spawnLetterConfetti();
+
+    window.setTimeout(function () {
+      envelope.classList.add('is-hidden');
+      loveLetter.hidden = false;
+      void loveLetter.offsetWidth;
+      loveLetter.classList.add('is-visible');
+      startTypewriter();
+    }, 900);
+  }
+
+  function startTypewriter() {
+    letterTitleEl.textContent = '';
+    letterBodyEl.innerHTML = '';
+    continueStoryBtn.hidden = true;
+    continueStoryBtn.classList.remove('is-shown');
+
+    const cursor = document.createElement('span');
+    cursor.className = 'letter-cursor';
+    cursor.setAttribute('aria-hidden', 'true');
+
+    let titleDone = false;
+    let titleIdx = 0;
+    const title = LETTER.title;
+
+    function typeTitle() {
+      if (titleIdx < title.length) {
+        letterTitleEl.textContent = title.slice(0, titleIdx + 1);
+        letterTitleEl.appendChild(cursor);
+        titleIdx += 1;
+        typingTimer = window.setTimeout(typeTitle, 55);
+      } else {
+        titleDone = true;
+        letterTitleEl.textContent = title;
+        typeParagraphs(0);
+      }
+    }
+
+    function typeParagraphs(pIndex) {
+      if (pIndex >= LETTER.paragraphs.length) {
+        cursor.remove();
+        finishLetterTyping();
+        return;
+      }
+
+      const p = document.createElement('p');
+      letterBodyEl.appendChild(p);
+      p.appendChild(cursor);
+
+      const text = LETTER.paragraphs[pIndex];
+      let i = 0;
+
+      function tick() {
+        if (i < text.length) {
+          // Handle newlines inside a paragraph
+          if (text[i] === '\n') {
+            p.appendChild(document.createElement('br'));
+          } else {
+            p.insertBefore(document.createTextNode(text[i]), cursor);
+          }
+          i += 1;
+          const delay = text[i - 1] === '.' || text[i - 1] === '!' || text[i - 1] === '?' ? 90
+            : text[i - 1] === ',' || text[i - 1] === '–' ? 45
+            : 18;
+          typingTimer = window.setTimeout(tick, delay);
+          // gentle auto-scroll as letter grows
+          loveLetter.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } else {
+          cursor.remove();
+          typingTimer = window.setTimeout(function () {
+            typeParagraphs(pIndex + 1);
+          }, 280);
+        }
+      }
+
+      tick();
+    }
+
+    typeTitle();
+  }
+
+  function finishLetterTyping() {
+    continueStoryBtn.hidden = false;
+    requestAnimationFrame(function () {
+      continueStoryBtn.classList.add('is-shown');
+    });
+  }
+
+  if (continueStoryBtn) {
+    continueStoryBtn.addEventListener('click', goToStory);
+  }
+
+  function goToStory() {
+    letterSection.classList.remove('is-entering');
+    letterSection.classList.add('is-leaving');
+
+    window.setTimeout(function () {
+      letterSection.setAttribute('hidden', '');
+      letterSection.style.display = 'none';
+
+      storySection.hidden = false;
+      void storySection.offsetWidth;
+      storySection.classList.add('is-visible');
+
+      body.classList.remove('is-locked');
+      body.classList.add('is-unlocked');
+
+      initScrollReveals();
+      initParallax();
+      window.scrollTo(0, 0);
+    }, 850);
+  }
+
 
   function playGrandCelebration() {
     quizCelebrate.classList.add('is-active');

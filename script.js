@@ -22,12 +22,12 @@
     {
       id: 1,
       type: 'choice',
-      question: '\u05d0\u05d9\u05e4\u05d4 \u05d4\u05d9\u05ea\u05d4 \u05d4\u05e0\u05e9\u05d9\u05e7\u05d4 \u05d4\u05e8\u05d0\u05e9\u05d5\u05e0\u05d4 \u05e9\u05dc\u05e0\u05d5?',
+      question: 'איפה היתה הנשיקה הראשונה שלנו?',
       options: [
-        '\u05e2\u05dc \u05e1\u05e4\u05e1\u05dc \u05d1\u05e4\u05d0\u05e8\u05e7',
-        '\u05d1\u05de\u05db\u05d5\u05e0\u05d9\u05ea \u05d0\u05d7\u05e8\u05d9 \u05d4\u05d3\u05d9\u05d9\u05d8',
-        '\u05e2\u05dc \u05d4\u05d2\u05d2 \u05ea\u05d7\u05ea \u05d4\u05db\u05d5\u05db\u05d1\u05d9\u05dd',
-        '\u05d1\u05db\u05e0\u05d9\u05e1\u05d4 \u05dc\u05d1\u05e0\u05d9\u05d9\u05df \u05e9\u05dc\u05da',
+        'על ספסל בפארק',
+        'במכונית אחרי הדייט',
+        'על הגג תחת הכוכבים',
+        'בכניסה לבניין שלך',
       ],
       // <<< Change this index to set the correct answer (0–3)
       correctIndex: 1,
@@ -35,47 +35,47 @@
     {
       id: 2,
       type: 'choice',
-      question: '\u05de\u05d9 \u05e9\u05dc\u05d7 \u05d4\u05d5\u05d3\u05e2\u05d4 \u05e8\u05d0\u05e9\u05d5\u05df \u05d1\u05e4\u05d9\u05d9\u05e1\u05d1\u05d5\u05e7?',
+      question: 'מי שלח הודעה ראשון בפייסבוק?',
       options: [
-        '\u05d0\u05e0\u05d9 (\u05d0\u05ea\u05d4)',
-        '\u05d0\u05d1\u05d9\u05d8\u05dc',
-        '\u05e9\u05e0\u05d9\u05e0\u05d5 \u05d1\u05d9\u05d7\u05d3',
+        'רון',
+        'אביטל',
+        'שנינו ביחד',
       ],
-      // <<< Change this index — 0 = "\u05d0\u05e0\u05d9"
+      // <<< Correct answer: "רון"
       correctIndex: 0,
     },
     {
       id: 3,
       type: 'choice',
-      question: '\u05de\u05d4 \u05d4\u05de\u05d0\u05db\u05dc \u05e9\u05e9\u05e0\u05d9\u05e0\u05d5 \u05d4\u05db\u05d9 \u05d0\u05d5\u05d4\u05d1\u05d9\u05dd \u05dc\u05d4\u05d6\u05de\u05d9\u05df?',
+      question: 'מה המאכל ששנינו הכי אוהבים להזמין?',
       options: [
-        '\u05e1\u05d5\u05e9\u05d9',
-        '\u05e4\u05d9\u05e6\u05d4',
-        '\u05d4\u05de\u05d1\u05d5\u05e8\u05d2\u05e8',
-        '\u05d4\u05db\u05dc!',
+        'סושי',
+        'פיצה',
+        'המבורגר',
+        'הכל!',
       ],
-      correctIndex: 3, // "\u05d4\u05db\u05dc!"
+      correctIndex: 3, // "הכל!"
     },
     {
       id: 4,
-      type: 'pin',
-      question: '\u05de\u05d4 \u05d4\u05e7\u05d5\u05d3 \u05dc\u05e6\u05d0\u05d8 \u05d4\u05e1\u05d5\u05d3\u05d9?',
-      // <<< Change the secret pin here
-      correctAnswer: '1105',
-      placeholder: '****',
-      submitLabel: '\u05d1\u05d3\u05d9\u05e7\u05d4',
+      type: 'choice',
+      question: 'מה מקום הבילוי שאנחנו הכי אוהבים?',
+      options: [
+        'מסעדה יוקרתית',
+        'הים בערב',
+        'איחוד הצלה',
+        'סרט בבית',
+      ],
+      correctIndex: 2, // "איחוד הצלה"
     },
     {
       id: 5,
-      type: 'choice',
-      question: '\u05de\u05d4 \u05de\u05e7\u05d5\u05dd \u05d4\u05d1\u05d9\u05dc\u05d5\u05d9 \u05e9\u05d0\u05e0\u05d7\u05e0\u05d5 \u05d4\u05db\u05d9 \u05d0\u05d5\u05d4\u05d1\u05d9\u05dd?',
-      options: [
-        '\u05de\u05e1\u05e2\u05d3\u05d4 \u05d9\u05d5\u05e7\u05e8\u05ea\u05d9\u05ea',
-        '\u05d4\u05d9\u05dd \u05d1\u05e2\u05e8\u05d1',
-        '\u05d0\u05d9\u05d7\u05d5\u05d3 \u05d4\u05e6\u05dc\u05d4',
-        '\u05e1\u05e8\u05d8 \u05d1\u05d1\u05d9\u05ea',
-      ],
-      correctIndex: 2, // "\u05d0\u05d9\u05d7\u05d5\u05d3 \u05d4\u05e6\u05dc\u05d4"
+      type: 'pin',
+      question: 'מה הקוד לצאט הסודי?',
+      // <<< Final unlock code — correct answer unlocks the Love Letter
+      correctAnswer: '1105',
+      placeholder: '****',
+      submitLabel: 'פתחי את המכתב',
     },
   ];
 
@@ -272,7 +272,7 @@
           onCorrect(null);
         } else {
           input.classList.add('is-error');
-          showQuizFeedback(MSG.wrong, false);
+          showQuizFeedback(MSG.wrongPin || MSG.wrong, false);
           window.setTimeout(function () {
             input.classList.remove('is-error');
           }, 500);

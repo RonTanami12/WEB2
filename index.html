@@ -262,6 +262,40 @@
           </div>
         </section>
 
+        <!-- Our Private Corner -->
+        <section class="extra-block glass-soft private-corner reveal-extra" id="private-corner" aria-label="הפינה הפרטית שלנו">
+          <p class="extra-eyebrow">רק בינינו</p>
+          <h3 class="extra-title font-serif">הפינה הפרטית שלנו</h3>
+          <p class="extra-sub private-intro">שלושה מקומות קטנים ששמורים רק לנו</p>
+
+          <div class="private-actions">
+            <button type="button" class="private-action-btn" id="promises-btn" data-modal="promises-modal">
+              ההבטחות שלי אלייך (לכל החיים) 💍
+            </button>
+            <button type="button" class="private-action-btn" id="jokes-btn" data-modal="jokes-modal">
+              כספת הבדיחות שלנו 🤫
+            </button>
+          </div>
+
+          <div class="secret-spot glass-soft" id="secret-spot">
+            <p class="secret-spot-eyebrow">📍 נקודת הציון</p>
+            <h4 class="secret-spot-title font-serif">המפגש הסודי שלנו</h4>
+            <p class="secret-coords" dir="ltr">32°01'10.4"N 34°49'00.1"E</p>
+            <p class="secret-spot-sub">הנקודה שבה הכל התחיל... (28.09.2025)</p>
+            <a
+              class="maps-btn"
+              id="maps-btn"
+              href="https://www.google.com/maps/search/?api=1&query=32.019556,34.816694"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              פתחי ב-Google Maps 🗺️
+            </a>
+          </div>
+        </section>
+
+
+
         <button type="button" class="continue-story-btn" id="continue-story-btn" hidden>
           <span class="btn-shimmer" aria-hidden="true"></span>
           <span>המשך לסיפור שלנו</span>
@@ -382,6 +416,45 @@
       <p class="closing-signature">— שלך</p>
     </footer>
   </section>
+
+
+  <!-- Promises Modal -->
+  <div class="modal-overlay" id="promises-modal" hidden aria-hidden="true">
+    <div class="modal-card glass" role="dialog" aria-modal="true" aria-labelledby="promises-modal-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="סגירה">×</button>
+      <div class="ornament" aria-hidden="true">
+        <span class="ornament-line"></span>
+        <span class="ornament-diamond"></span>
+        <span class="ornament-line"></span>
+      </div>
+      <h3 class="modal-title font-serif" id="promises-modal-title">ההבטחות שלי אלייך 💍</h3>
+      <p class="modal-sub">לכל החיים — בלי תוקף תפוגה</p>
+      <ul class="promises-list">
+        <li>להמשיך להיות האוזן הקשבת והעוגן שלך בכל רגע ובכל מצב.</li>
+        <li>לדאוג שתמיד תהיה לנו לפחות פעם בשבוע נסיעה רגועה רק שנינו.</li>
+        <li>לזכור תמיד לקנות את הדברים שאת הכי אוהבת בלי שתצטרכי לבקש.</li>
+        <li>להצחיק אותך בכל יום מחדש ולשמור על החיוך המושלם שלך.</li>
+        <li>להיות לצידך, לתמוך בך ולהיות השותף האמיתי שלך לכל החיים.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Jokes Vault Modal -->
+  <div class="modal-overlay" id="jokes-modal" hidden aria-hidden="true">
+    <div class="modal-card glass modal-card--vault" role="dialog" aria-modal="true" aria-labelledby="jokes-modal-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="סגירה">×</button>
+      <div class="ornament" aria-hidden="true">
+        <span class="ornament-line"></span>
+        <span class="ornament-diamond"></span>
+        <span class="ornament-line"></span>
+      </div>
+      <h3 class="modal-title font-serif" id="jokes-modal-title">כספת הבדיחות הפרטיות 🤫</h3>
+      <p class="modal-sub">לחצי על כרטיס כדי לפתוח בדיחה</p>
+      <div class="jokes-vault" id="jokes-vault">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

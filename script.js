@@ -654,6 +654,7 @@
     startTogetherTimer();
     initReasons();
     initLoveQuotes();
+    initPrivateCorner();
     initAdminUnlock();
 
     requestAnimationFrame(function () {
@@ -1031,6 +1032,128 @@
     });
   }
 
+
+
+
+  // ——— Private corner: promises + jokes vault ———
+  const PRIVATE_JOKES = [
+    {
+      label: 'הבדיחה שלנו #1',
+      text: 'השיחות על איחוד הצלה והמסאז\' במאזדה השחורה 😉',
+    },
+    {
+      label: 'בלונדינית וקליטה',
+      text: 'למה בלונדינית שמה את הטלפון על הרצפה? כדי לבדוק אם יש קליטה מהרצפה.',
+    },
+    {
+      label: 'בלונדינית ודג',
+      text: 'איך בלונדינית מנסה להרוג דג? היא מנסה להטביע אותו במים.',
+    },
+    {
+      label: 'בלונדינית ושלג',
+      text: 'מה בלונדינית עושה כשהיא רואה שלג? מביאה כפית כי זה נראה כמו גלידה.',
+    },
+    {
+      label: 'בלונדינית וקיר',
+      text: 'למה בלונדינית מטפסת על קיר זכוכית? כדי לראות מה יש בצד השני.',
+    },
+    {
+      label: 'בלונדינית וג\'לי',
+      text: 'בלונדינית פותחת את המקרר, רואה את הג\'לי רועד ואומרת: \'אל תפחד, אני רק רוצה לקחת משהו לשתות!\'',
+    },
+  ];
+
+  function initPrivateCorner() {
+    const promisesBtn = document.getElementById('promises-btn');
+    const jokesBtn = document.getElementById('jokes-btn');
+    const promisesModal = document.getElementById('promises-modal');
+    const jokesModal = document.getElementById('jokes-modal');
+    const jokesVault = document.getElementById('jokes-vault');
+
+    if (jokesVault && !jokesVault.dataset.ready) {
+      jokesVault.dataset.ready = '1';
+      PRIVATE_JOKES.forEach(function (joke, i) {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'joke-card';
+        card.innerHTML =
+          '<div class="joke-card-face"></div><div class="joke-card-body"></div>';
+        card.querySelector('.joke-card-face').textContent = joke.label + ' ▾';
+        card.querySelector('.joke-card-body').textContent = joke.text;
+        card.addEventListener('click', function () {
+          const open = card.classList.contains('is-open');
+          jokesVault.querySelectorAll('.joke-card').forEach(function (c) {
+            c.classList.remove('is-open');
+            const face = c.querySelector('.joke-card-face');
+            if (face) face.textContent = face.textContent.replace(' ▴', ' ▾');
+          });
+          if (!open) {
+            card.classList.add('is-open');
+            card.querySelector('.joke-card-face').textContent = joke.label + ' ▴';
+          }
+        });
+        jokesVault.appendChild(card);
+      });
+    }
+
+    function openModal(modal) {
+      if (!modal) return;
+      modal.hidden = false;
+      modal.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(function () {
+        modal.classList.add('is-open');
+      });
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modal) {
+      if (!modal) return;
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      window.setTimeout(function () {
+        modal.hidden = true;
+      }, 350);
+      // restore scroll only if letter section still locked/scrollable
+      document.body.style.overflow = '';
+    }
+
+    function bindOpen(btn, modal) {
+      if (!btn || btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        openModal(modal);
+      });
+    }
+
+    bindOpen(promisesBtn, promisesModal);
+    bindOpen(jokesBtn, jokesModal);
+
+    document.querySelectorAll('[data-close-modal]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function () {
+        const overlay = btn.closest('.modal-overlay');
+        closeModal(overlay);
+      });
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+      if (overlay.dataset.bound) return;
+      overlay.dataset.bound = '1';
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closeModal(overlay);
+      });
+    });
+
+    if (!window.__privateEscBound) {
+      window.__privateEscBound = true;
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          document.querySelectorAll('.modal-overlay.is-open').forEach(closeModal);
+        }
+      });
+    }
+  }
 
 
   function goToStory() {

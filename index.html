@@ -8,7 +8,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bellefair&family=Frank+Ruhl+Libre:wght@400;500;700&family=Heebo:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -31,7 +31,7 @@
 
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="font-sans text-white antialiased overflow-x-hidden">
+<body class="font-sans text-white antialiased overflow-x-hidden site-romantic">
 
   <canvas id="particles" aria-hidden="true"></canvas>
   <div class="ambient ambient-1" aria-hidden="true"></div>
@@ -42,6 +42,7 @@
   <nav id="app-nav" class="app-nav" hidden aria-label="ניווט ראשי">
     <div class="app-nav-inner">
       <button type="button" class="app-nav-btn" data-scroll="sec-letter">המכתב הסודי</button>
+      <button type="button" class="app-nav-btn" data-scroll="sec-quiz">החידון</button>
       <button type="button" class="app-nav-btn" data-scroll="story-section">הסיפור שלנו</button>
       <button type="button" class="app-nav-btn" data-scroll="sec-vouchers">כרטיסי הגירוד</button>
       <button type="button" class="app-nav-btn" data-scroll="sec-private">הפינה הפרטית</button>
@@ -111,42 +112,6 @@
   </section>
 
   <!-- SECTION 1.5: Quiz -->
-  <section id="quiz-section" class="section-screen quiz-section" aria-label="חידון הזוגיות" hidden>
-    <div class="quiz-shell">
-      <div class="quiz-card glass" id="quiz-card">
-        <div class="ornament" aria-hidden="true">
-          <span class="ornament-line"></span>
-          <span class="ornament-diamond"></span>
-          <span class="ornament-line"></span>
-        </div>
-
-        <p class="quiz-eyebrow">חצי גמר</p>
-        <h2 class="quiz-title font-serif">חידון הזוגיות שלנו</h2>
-
-        <div class="quiz-progress" aria-live="polite">
-          <div class="quiz-progress-meta">
-            <span id="quiz-progress-text">שאלה 1 מתוך 5</span>
-          </div>
-          <div class="quiz-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" id="quiz-progress-bar">
-            <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
-          </div>
-        </div>
-
-        <div class="quiz-stage" id="quiz-stage">
-          <!-- Filled by script.js -->
-        </div>
-
-        <p id="quiz-feedback" class="quiz-feedback" role="status" aria-live="polite" hidden></p>
-      </div>
-    </div>
-
-    <div id="quiz-celebrate" class="quiz-celebrate" aria-hidden="true">
-      <div class="celebrate-burst" id="celebrate-burst"></div>
-      <p class="celebrate-text font-serif">ניצחת!❤️<br />הסיפור שלנו נפתח…</p>
-    </div>
-  </section>
-
-
   <!-- SECTION: Unlocking Love Letter -->
   <section id="letter-section" class="section-screen letter-section journey-section" aria-label="המכתב" hidden>
     <div class="letter-scene" id="letter-scene">
@@ -195,6 +160,47 @@
   <!-- STAGE 4: Main Hub -->
   <div id="main-hub" class="main-hub" hidden>
     <div class="hub-stack">
+<section id="quiz-section" id="quiz-section" class="quiz-section quiz-hub-panel" aria-label="חידון הזוגיות" hidden>
+    <div id="sec-quiz" class="nav-anchor"></div>
+    <div class="quiz-shell">
+      <div class="quiz-card glass" id="quiz-card">
+        <div class="ornament" aria-hidden="true">
+          <span class="ornament-line"></span>
+          <span class="ornament-diamond"></span>
+          <span class="ornament-line"></span>
+        </div>
+
+        <p class="quiz-eyebrow">חצי גמר</p>
+        <h2 class="quiz-title font-serif">חידון הזוגיות שלנו</h2>
+        <p class="quiz-optional-note">לא חובה — אפשר לדלג ולהמשיך ליהנות מהאתר</p>
+        <button type="button" class="quiz-skip-btn" id="quiz-skip-btn">דלגי על החידון ←</button>
+
+        <div class="quiz-progress" aria-live="polite">
+          <div class="quiz-progress-meta">
+            <span id="quiz-progress-text">שאלה 1 מתוך 5</span>
+          </div>
+          <div class="quiz-progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" id="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+          </div>
+        </div>
+
+        <div class="quiz-stage" id="quiz-stage">
+          <!-- Filled by script.js -->
+        </div>
+
+        <p id="quiz-feedback" class="quiz-feedback" role="status" aria-live="polite" hidden></p>
+      </div>
+    </div>
+
+    <div id="quiz-celebrate" class="quiz-celebrate" aria-hidden="true">
+      <div class="celebrate-burst" id="celebrate-burst"></div>
+      <p class="celebrate-text font-serif">ניצחת!❤️<br />הסיפור שלנו נפתח…</p>
+    </div>
+  </section>
+
+
+  
+
       <!-- SECTION 2: Our Story -->
   <section id="story-section" class="story-section journey-section" aria-label="הסיפור שלנו" hidden>
     <header class="story-hero">

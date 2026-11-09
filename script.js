@@ -156,7 +156,7 @@
       return;
     }
     hideError();
-    goToQuiz();
+    enterHome();
   });
 
   function showError() {
@@ -173,8 +173,8 @@
     accessInput.classList.remove('is-error');
   }
 
-  // ——— Login -> Quiz ———
-  function goToQuiz() {
+  // ——— Login -> Home (letter + hub). Quiz stays optional on the page ———
+  function enterHome() {
     enterBtn.disabled = true;
     playHeartSplash(splashHearts, successSplash);
 
@@ -186,13 +186,108 @@
         loginSection.style.display = 'none';
         successSplash.classList.remove('is-active');
 
-        quizSection.hidden = false;
-        void quizSection.offsetWidth;
-        quizSection.classList.add('is-entering');
-
-        startQuiz();
+        openHomeExperience();
       }, 850);
     }, 1200);
+  }
+
+  function openHomeExperience() {
+    const hub = document.getElementById('main-hub');
+    const personal = document.getElementById('sec-personal');
+
+    // Letter stage
+    if (letterSection) {
+      letterSection.hidden = false;
+      letterSection.style.display = '';
+      void letterSection.offsetWidth;
+      letterSection.classList.add('is-entering', 'is-journey', 'is-letter-only');
+      letterSection.classList.remove('is-leaving');
+    }
+
+    // Main hub with quiz + story + extras
+    if (hub) {
+      hub.hidden = false;
+      hub.classList.add('is-visible');
+    }
+    if (storySection) {
+      storySection.hidden = false;
+      storySection.classList.add('is-visible', 'is-inline');
+    }
+    if (personal) personal.hidden = false;
+
+    if (quizSection) {
+      quizSection.hidden = false;
+      quizSection.classList.remove('is-leaving');
+      quizSection.classList.add('is-entering');
+      startQuiz();
+    }
+
+    body.classList.remove('is-locked', 'stage-letter');
+    body.classList.add('is-unlocked', 'has-app-nav', 'stage-hub');
+
+    showAppNav();
+    initScrollReveals();
+    initParallax();
+    bindQuizSkip();
+
+    // Soft scroll to letter first
+    window.setTimeout(function () {
+      const target = document.getElementById('sec-letter') || letterSection;
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+
+    // Init hub interactive bits after layout
+    requestAnimationFrame(function () {
+      if (typeof initReasons === 'function') initReasons();
+      if (typeof initLoveQuotes === 'function') initLoveQuotes();
+      if (typeof initPrivateCorner === 'function') initPrivateCorner();
+      if (typeof initAdminUnlock === 'function') initAdminUnlock();
+      if (typeof initPersonalToggle === 'function') initPersonalToggle();
+      if (typeof startTogetherTimer === 'function') startTogetherTimer();
+      requestAnimationFrame(function () {
+        if (typeof initVouchers === 'function') initVouchers();
+      });
+    });
+  }
+
+  function bindQuizSkip() {
+    const skipBtn = document.getElementById('quiz-skip-btn');
+    if (!skipBtn || skipBtn.dataset.bound) return;
+    skipBtn.dataset.bound = '1';
+    skipBtn.addEventListener('click', function () {
+      skipQuizKeepOnPage();
+    });
+  }
+
+  function skipQuizKeepOnPage() {
+    quizLocked = true;
+    if (quizSection) {
+      quizSection.classList.add('is-collapsed');
+    }
+    // Ensure a small done note exists
+    let badge = document.getElementById('quiz-done-badge');
+    if (!badge && quizSection) {
+      badge = document.createElement('p');
+      badge.id = 'quiz-done-badge';
+      badge.className = 'quiz-done-badge';
+      badge.textContent = 'דילגת על החידון — הוא תמיד כאן למעלה אם תרצי לשחק 💫';
+      const shell = quizSection.querySelector('.quiz-card') || quizSection;
+      shell.appendChild(badge);
+    }
+    if (badge) badge.style.display = 'block';
+
+    // Jump gently to the letter
+    const target = document.getElementById('sec-letter') || letterSection;
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function goToQuiz() {
+    // Back-compat: scrolling to optional quiz on home
+    openHomeExperience();
+    window.setTimeout(function () {
+      const q = document.getElementById('sec-quiz') || quizSection;
+      if (q) q.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 200);
   }
 
   function playHeartSplash(container, overlay) {
@@ -208,7 +303,7 @@
       heart.style.left = 35 + Math.random() * 30 + '%';
       heart.style.top = 40 + Math.random() * 20 + '%';
       heart.style.fontSize = 0.9 + Math.random() * 1.4 + 'rem';
-      heart.style.color = i % 2 === 0 ? '#B76E79' : '#E8D5A3';
+      heart.style.color = i % 2 === 0 ? '#C4878F' : '#F3E2B5';
       heart.style.setProperty('--hx', (Math.random() - 0.5) * 280 + 'px');
       heart.style.setProperty('--hy', -80 - Math.random() * 220 + 'px');
       heart.style.animationDelay = Math.random() * 0.35 + 's';
@@ -376,7 +471,7 @@
       const h = document.createElement('span');
       h.className = 'quiz-mini-heart';
       h.textContent = i % 2 === 0 ? '\u2764' : '\u2726';
-      h.style.color = i % 2 === 0 ? '#B76E79' : '#E8D5A3';
+      h.style.color = i % 2 === 0 ? '#C4878F' : '#F3E2B5';
       h.style.setProperty('--qx', (Math.random() - 0.5) * 160 + 'px');
       h.style.setProperty('--qy', -40 - Math.random() * 100 + 'px');
       h.style.animationDelay = Math.random() * 0.2 + 's';
@@ -400,7 +495,6 @@
       'בעולם אחר שנינו נמצאים על איזה יאכטה או בית מלון בחדר מסאז\', אבל כנראה שהמסאז\' היחיד שיהיה זה במאזדה שחורה שבוע הבא... בנתיים גם שם אני מודה שלא אפסיק להתאהב 😉.',
       'אני מתגעגע אלייך מאוד האמת, וכיף לקחת חלק ואת ההרגשה שהיום זה היום שלך שבאת לעולם – ובעיקר באת לעולם שלי ותפסת בו מקום לא קטן. אני תמיד פה בשבילך להכל, והלוואי שגם לבייביסיטר. אני תמיד אהיה לצידך ותמיד אתמוך בך בהכל – גם בחיים וגם מול כל הבנים שעומדים בדלת ומחכים לך...',
       'בא לי לתת לך חיבוק ענק ויותר מחיבוק חברי, ופשוט לקחת יין לבן ומשם ימים יגידו 🍷.',
-      'אז המון המון המון מזל טוב! שיהיה לך אושר ועושר בחיים, רק הצלחה בכל מה שאת נוגעת בו ומתעסקת בו בחייך. הלוואי שבעזרת ה\' ירפו ממך גם כל הבנים... אבל האמת שאני מבין אותם, זה ממש קשה ובצדק, אין לי כל כך זכות דיבור על זה.\n\nאני אוהב אותך ברמות, ובעזרת ה\' שבוע הבא לכי תדעי מה תקבלי ❤🫣',
     ],
   };
 
@@ -410,40 +504,43 @@
   function finishQuiz() {
     quizProgressFill.style.width = '100%';
     playGrandCelebration();
-    spawnLetterConfetti();
+    if (typeof spawnLetterConfetti === 'function') spawnLetterConfetti();
 
     window.setTimeout(function () {
-      quizSection.classList.remove('is-entering');
-      quizSection.classList.add('is-leaving');
-
-      window.setTimeout(function () {
-        quizSection.setAttribute('hidden', '');
-        quizSection.style.display = 'none';
-
-        showLetterStage();
-      }, 850);
-    }, 2200);
+      if (quizCelebrate) quizCelebrate.classList.remove('is-active');
+      if (quizSection) {
+        quizSection.classList.add('is-collapsed');
+        let badge = document.getElementById('quiz-done-badge');
+        if (!badge) {
+          badge = document.createElement('p');
+          badge.id = 'quiz-done-badge';
+          badge.className = 'quiz-done-badge';
+          const shell = quizSection.querySelector('.quiz-card') || quizSection;
+          shell.appendChild(badge);
+        }
+        badge.textContent = 'כל הכבוד! סיימת את החידון 💍 אפשר להמשיך לגלול באתר';
+        badge.style.display = 'block';
+      }
+    }, 1800);
   }
 
   function showLetterStage() {
-    letterSection.hidden = false;
-    void letterSection.offsetWidth;
-    letterSection.classList.add('is-entering', 'is-letter-only');
-    body.classList.remove('is-locked', 'has-app-nav', 'stage-hub');
-    body.classList.add('is-unlocked', 'stage-letter');
-    // Nav stays hidden in stage 3
-    const nav = document.getElementById('app-nav');
-    if (nav) {
-      nav.hidden = true;
-      nav.classList.remove('is-visible');
+    // Used if letter needs focus; home already opened by enterHome
+    if (letterSection) {
+      letterSection.hidden = false;
+      letterSection.style.display = '';
+      letterSection.classList.add('is-entering', 'is-journey');
+      letterSection.classList.remove('is-leaving');
     }
+    body.classList.remove('is-locked');
+    body.classList.add('is-unlocked', 'has-app-nav', 'stage-hub');
   }
 
   function spawnLetterConfetti() {
     if (!letterConfetti) return;
     letterConfetti.innerHTML = '';
     const symbols = ['❤', '✦', '✨', '◆', '❤'];
-    const colors = ['#B76E79', '#E8D5A3', '#D4AF37', '#E8C4C8', '#f5efe6'];
+    const colors = ['#C4878F', '#F3E2B5', '#D4AF37', '#E8C4C8', '#f5efe6'];
     for (let i = 0; i < 48; i++) {
       const p = document.createElement('span');
       p.className = 'confetti-piece';
@@ -551,12 +648,7 @@
   }
 
   function finishLetterTyping() {
-    if (continueStoryBtn) {
-      continueStoryBtn.hidden = false;
-      requestAnimationFrame(function () {
-        continueStoryBtn.classList.add('is-shown');
-      });
-    }
+    showLetterExtras();
   }
 
   if (continueStoryBtn) {
@@ -585,31 +677,7 @@
     { id: 'v4', text: 'יום כיף מפנק ורגוע רק שנינו' },
   ];
 
-  const LS_VOUCHER = 'avital_voucher_v2';
-  const ADMIN_CODE = '1105';
-
-  const LOVE_QUOTES = [
-    'כל פעם שאני חושב עלייך, העולם פתאום מרגיש קצת יותר טוב.',
-    'את לא סתם בחורה בחיי — את הבית שאליו הלב שלי חוזר.',
-    'יש אנשים שמדברים על אהבה. איתך אני פשוט מרגיש אותה.',
-    'החיוך שלך עושה לי סדר גם בימים הכי מבולגנים.',
-    'אני אוהב אותך בגרסה השקטה, בגרסה הצוחקת, ובגרסה האמיתית ביותר שלך.',
-    'את ההוכחה שלי שגם הודעה אחת בפייסבוק יכולה לשנות חיים.',
-    'תודה שאת נותנת לי מקום בלב שלך — זה המקום הכי יקר לי.',
-    'איתך אני מרגיש שאפשר גם לעוף וגם לנחות בבטחה.',
-    'את החזקה והרכה באותו זמן, וזה פשוט מדהים.',
-    'כל שיחה איתך מרגישה כמו חיבוק במילים.',
-    'אני גאה בך יותר ממה שמילים יכולות להחזיק.',
-    'הלב שלי מכיר אותך גם כשאת שותקת.',
-    'את מלמדת אותי לאהוב טוב יותר, בכל יום מחדש.',
-    'גם מרחוק, את קרובה אליי יותר מהכל.',
-    'יש לי מזל שדווקא אותך פגשתי בדרך.',
-    'את האור הוורוד שאני בוחר לראות בעולם.',
-    'אוהב את האמת שלך, את הצחוק שלך, ואת מי שאת כשאת פשוט את.',
-    'בשבילי את לא עוד פרק — את כל הספר.',
-    'אם אהבה הייתה מקום, הייתי בונה בו בית איתך.',
-    'אני כאן. תמיד. גם כשקשה, גם כשכיף, ובעיקר כשצריך לב.',
-  ];
+  const LS_VOUCHER = 'avital_voucher_v1';
 
   const letterExtras = document.getElementById('letter-extras');
   const reasonCard = document.getElementById('reason-card');
@@ -617,15 +685,9 @@
   const reasonBtn = document.getElementById('reason-btn');
   const vouchersGrid = document.getElementById('vouchers-grid');
   const voucherLockMsg = document.getElementById('voucher-lock-msg');
-  const voucherAdminBtn = document.getElementById('voucher-admin-btn');
-  const voucherAdminHint = document.getElementById('voucher-admin-hint');
-  const quoteCard = document.getElementById('quote-card');
-  const quoteText = document.getElementById('quote-text');
-  const quoteBtn = document.getElementById('quote-btn');
 
   let timerInterval = null;
   let lastReasonIndex = -1;
-  let lastQuoteIndex = -1;
 
   function pad2(n) {
     return String(n).padStart(2, '0');
@@ -659,7 +721,21 @@
   }
 
   function showLetterExtras() {
-    // Stage 3 no longer reveals extras; hub opens via continue button
+    if (!letterExtras) return;
+    letterExtras.hidden = false;
+    void letterExtras.offsetWidth;
+    letterExtras.classList.add('is-visible');
+    startTogetherTimer();
+    initReasons();
+    initVouchers();
+
+    // Continue button lives in extras now
+    if (continueStoryBtn) {
+      continueStoryBtn.hidden = false;
+      requestAnimationFrame(function () {
+        continueStoryBtn.classList.add('is-shown');
+      });
+    }
   }
 
   function initReasons() {
@@ -682,141 +758,19 @@
     });
   }
 
-  function initLoveQuotes() {
-    if (!quoteBtn || quoteBtn.dataset.bound) return;
-    quoteBtn.dataset.bound = '1';
-    quoteBtn.addEventListener('click', function () {
-      let idx = Math.floor(Math.random() * LOVE_QUOTES.length);
-      if (LOVE_QUOTES.length > 1) {
-        while (idx === lastQuoteIndex) {
-          idx = Math.floor(Math.random() * LOVE_QUOTES.length);
-        }
-      }
-      lastQuoteIndex = idx;
-      if (quoteCard) quoteCard.classList.add('is-fading');
-      window.setTimeout(function () {
-        if (quoteText) quoteText.textContent = LOVE_QUOTES[idx];
-        if (quoteCard) quoteCard.classList.remove('is-fading');
-      }, 280);
-    });
-  }
-
-  function defaultVoucherState() {
-    return { extraSlots: 0, scratched: {} };
-  }
-
   function readVoucherState() {
     try {
       const raw = localStorage.getItem(LS_VOUCHER);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed && typeof parsed === 'object') {
-          if (!parsed.scratched) parsed.scratched = {};
-          if (typeof parsed.extraSlots !== 'number') parsed.extraSlots = 0;
-          return parsed;
-        }
-      }
-      // migrate legacy v1 format { id, redeemed }
-      const legacy = localStorage.getItem('avital_voucher_v1');
-      if (legacy) {
-        const old = JSON.parse(legacy);
-        if (old && old.id) {
-          const migrated = {
-            extraSlots: 0,
-            scratched: {},
-          };
-          migrated.scratched[old.id] = {
-            redeemed: !!old.redeemed,
-            at: old.at || Date.now(),
-          };
-          writeVoucherState(migrated);
-          return migrated;
-        }
-      }
-    } catch (e) { /* ignore */ }
-    return defaultVoucherState();
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
   }
 
   function writeVoucherState(state) {
     try {
       localStorage.setItem(LS_VOUCHER, JSON.stringify(state));
     } catch (e) { /* ignore quota */ }
-  }
-
-  function allowedVoucherCount(state) {
-    return 1 + (state.extraSlots || 0);
-  }
-
-  function scratchedCount(state) {
-    return Object.keys(state.scratched || {}).length;
-  }
-
-  function refreshVoucherLocks() {
-    const state = readVoucherState();
-    const allowed = allowedVoucherCount(state);
-    const used = scratchedCount(state);
-    const remaining = Math.max(0, allowed - used);
-
-    if (voucherLockMsg) {
-      if (used >= 1 && remaining === 0) {
-        voucherLockMsg.hidden = false;
-        voucherLockMsg.textContent = 'הגעת למכסת השוברים. אפשר לבקש אישור מנהל לשובר נוסף ✨';
-      } else if (remaining > 0 && used >= 1) {
-        voucherLockMsg.hidden = false;
-        voucherLockMsg.textContent = 'נשאר לך עוד ' + remaining + ' שובר' + (remaining > 1 ? 'ים' : '') + ' לפתוח 🎁';
-      } else if (used === 0) {
-        voucherLockMsg.hidden = false;
-        voucherLockMsg.textContent = 'בחרי שובר אחד, גרדי אותו וצלמי לי מסך כדי לממש!';
-      } else {
-        voucherLockMsg.hidden = true;
-      }
-    }
-
-    if (!vouchersGrid) return;
-    vouchersGrid.querySelectorAll('.voucher-card').forEach(function (c) {
-      const id = c.dataset.id;
-      const isScratched = !!(state.scratched && state.scratched[id]);
-      if (isScratched) {
-        c.classList.remove('is-disabled');
-        c.classList.add('is-chosen');
-      } else if (remaining <= 0) {
-        c.classList.add('is-disabled');
-      } else {
-        c.classList.remove('is-disabled');
-      }
-    });
-
-    if (voucherAdminHint && state.extraSlots > 0) {
-      // keep last success message if any
-    }
-  }
-
-  function initAdminUnlock() {
-    if (!voucherAdminBtn || voucherAdminBtn.dataset.bound) return;
-    voucherAdminBtn.dataset.bound = '1';
-    voucherAdminBtn.addEventListener('click', function () {
-      const code = window.prompt('הכניסי קוד אישור מנהל:');
-      if (code === null) return;
-      const normalized = String(code).trim();
-      if (normalized === ADMIN_CODE) {
-        const state = readVoucherState();
-        state.extraSlots = (state.extraSlots || 0) + 1;
-        writeVoucherState(state);
-        refreshVoucherLocks();
-        if (voucherAdminHint) {
-          voucherAdminHint.hidden = false;
-          voucherAdminHint.classList.add('is-ok');
-          voucherAdminHint.textContent =
-            'אושר! נפתח לך שובר נוסף אחד (' + allowedVoucherCount(state) + ' סה״כ) 🔑';
-        }
-      } else {
-        if (voucherAdminHint) {
-          voucherAdminHint.hidden = false;
-          voucherAdminHint.classList.remove('is-ok');
-          voucherAdminHint.textContent = 'קוד שגוי... נסי שוב 😉';
-        }
-      }
-    });
   }
 
   function initVouchers() {
@@ -860,7 +814,9 @@
       setupScratchCard(card, canvas, hint, statusBtn, v, saved);
     });
 
-    refreshVoucherLocks();
+    if (saved && saved.id) {
+      if (voucherLockMsg) voucherLockMsg.hidden = false;
+    }
   }
 
   function setupScratchCard(card, canvas, hint, statusBtn, voucher, saved) {
@@ -881,12 +837,14 @@
 
     function paintCover(w, h) {
       const grad = ctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, '#E8D5A3');
+      grad.addColorStop(0, '#F3E2B5');
       grad.addColorStop(0.45, '#D4AF37');
-      grad.addColorStop(1, '#B76E79');
+      grad.addColorStop(1, '#C4878F');
       ctx.globalCompositeOperation = 'source-over';
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
+
+      // subtle shimmer pattern
       ctx.fillStyle = 'rgba(255,255,255,0.12)';
       for (let i = -h; i < w + h; i += 14) {
         ctx.beginPath();
@@ -915,7 +873,7 @@
       if (!w || !h) return 0;
       const data = ctx.getImageData(0, 0, w, h).data;
       let clear = 0;
-      const step = 4 * 8;
+      const step = 4 * 8; // sample every 8px
       for (let i = 3; i < data.length; i += step) {
         if (data[i] < 128) clear += 1;
       }
@@ -931,14 +889,9 @@
       hint.style.opacity = '0';
       statusBtn.hidden = false;
       setRedeemedUI(!!redeemed);
-
-      const state = readVoucherState();
-      state.scratched[voucher.id] = {
-        redeemed: !!redeemed,
-        at: Date.now(),
-      };
-      writeVoucherState(state);
-      refreshVoucherLocks();
+      writeVoucherState({ id: voucher.id, redeemed: !!redeemed, at: Date.now() });
+      lockOtherVouchers(voucher.id);
+      if (voucherLockMsg) voucherLockMsg.hidden = false;
     }
 
     function setRedeemedUI(redeemed) {
@@ -951,41 +904,49 @@
       }
     }
 
+    function lockOtherVouchers(chosenId) {
+      vouchersGrid.querySelectorAll('.voucher-card').forEach(function (c) {
+        if (c.dataset.id !== chosenId) {
+          c.classList.add('is-disabled');
+        }
+      });
+    }
+
     function canScratch() {
       const state = readVoucherState();
-      if (state.scratched[voucher.id]) return true;
-      return scratchedCount(state) < allowedVoucherCount(state);
+      if (!state) return true;
+      return state.id === voucher.id;
     }
 
     statusBtn.addEventListener('click', function (e) {
       e.stopPropagation();
       const state = readVoucherState();
-      if (!state.scratched[voucher.id]) return;
-      const next = !state.scratched[voucher.id].redeemed;
-      state.scratched[voucher.id].redeemed = next;
-      state.scratched[voucher.id].at = Date.now();
-      writeVoucherState(state);
+      if (!state || state.id !== voucher.id) return;
+      const next = !state.redeemed;
+      writeVoucherState({ id: voucher.id, redeemed: next, at: Date.now() });
       setRedeemedUI(next);
     });
 
-    // Restore
-    if (saved.scratched && saved.scratched[voucher.id]) {
-      const entry = saved.scratched[voucher.id];
-      revealed = true;
-      card.classList.add('is-revealed', 'is-chosen');
-      canvas.classList.add('is-done');
-      hint.style.opacity = '0';
-      statusBtn.hidden = false;
-      setRedeemedUI(!!entry.redeemed);
-      resizeCanvas();
+    // Restore from localStorage
+    if (saved && saved.id === voucher.id) {
+      revealCard(!!saved.redeemed);
+      // fully clear canvas
       const rect = card.getBoundingClientRect();
+      resizeCanvas();
       ctx.clearRect(0, 0, rect.width || canvas.width, rect.height || canvas.height);
+      canvas.classList.add('is-done');
+    } else if (saved && saved.id !== voucher.id) {
+      card.classList.add('is-disabled');
+      resizeCanvas();
     } else {
       resizeCanvas();
     }
 
     function onStart(e) {
       if (revealed || !canScratch()) return;
+      // If another card already chosen somehow
+      const state = readVoucherState();
+      if (state && state.id !== voucher.id) return;
       scratching = true;
       card.classList.add('is-scratching');
       const point = e.touches ? e.touches[0] : e;
@@ -1025,145 +986,26 @@
 
 
 
-
-
-  // ——— Private corner: promises + jokes vault ———
-  const PRIVATE_JOKES = {
-    inside: [
-      {
-        label: 'זיכרון פנימי שלנו',
-        text: 'השיחות על איחוד הצלה והמסאז\' במאזדה השחורה 😉',
-      },
-    ],
-    blonde: [
-      {
-        label: 'בלונדינית וקליטה',
-        text: 'למה בלונדינית שמה את הטלפון על הרצפה? כדי לבדוק אם יש קליטה מהרצפה.',
-      },
-      {
-        label: 'בלונדינית ודג',
-        text: 'איך בלונדינית מנסה להרוג דג? היא מנסה להטביע אותו במים.',
-      },
-      {
-        label: 'בלונדינית ושלג',
-        text: 'מה בלונדינית עושה כשהיא רואה שלג? מביאה כפית כי זה נראה כמו גלידה.',
-      },
-      {
-        label: 'בלונדינית וקיר',
-        text: 'למה בלונדינית מטפסת על קיר זכוכית? כדי לראות מה יש בצד השני.',
-      },
-      {
-        label: 'בלונדינית וג\'לי',
-        text: 'בלונדינית פותחת את המקרר, רואה את הג\'לי רועד ואומרת: \'אל תפחד, אני רק רוצה לקחת משהו לשתות!\'',
-      },
-    ],
-  };
-
-  function renderJokeCategory(vault, title, items, kind) {
-    const wrap = document.createElement('div');
-    wrap.className = 'joke-category';
-    const h = document.createElement('p');
-    h.className = 'joke-category-title';
-    h.textContent = title;
-    wrap.appendChild(h);
-
-    items.forEach(function (joke) {
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'joke-card joke-card--' + kind;
-      card.innerHTML =
-        '<div class="joke-card-face"><span class="joke-card-tag"></span><div class="joke-card-label"></div></div>' +
-        '<div class="joke-card-body"></div>';
-      card.querySelector('.joke-card-tag').textContent = kind === 'inside' ? 'בדיחה פנימית' : 'בדיחת בלונדינית';
-      card.querySelector('.joke-card-label').textContent = joke.label + ' ▾';
-      card.querySelector('.joke-card-body').textContent = joke.text;
-      card.addEventListener('click', function () {
-        const open = card.classList.contains('is-open');
-        vault.querySelectorAll('.joke-card').forEach(function (c) {
-          c.classList.remove('is-open');
-          const lab = c.querySelector('.joke-card-label');
-          if (lab) lab.textContent = lab.textContent.replace(' ▴', ' ▾');
-        });
-        if (!open) {
-          card.classList.add('is-open');
-          card.querySelector('.joke-card-label').textContent = joke.label + ' ▴';
-        }
-      });
-      wrap.appendChild(card);
+  function initPersonalToggle() {
+    const toggle = document.getElementById('personal-toggle');
+    const panel = document.getElementById('personal-panel');
+    if (!toggle || !panel || toggle.dataset.bound) return;
+    toggle.dataset.bound = '1';
+    toggle.addEventListener('click', function () {
+      const open = toggle.getAttribute('aria-expanded') === 'true';
+      if (open) {
+        toggle.setAttribute('aria-expanded', 'false');
+        panel.classList.remove('is-open');
+        window.setTimeout(function () { panel.hidden = true; }, 350);
+      } else {
+        panel.hidden = false;
+        toggle.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(function () { panel.classList.add('is-open'); });
+        if (typeof startTogetherTimer === 'function') startTogetherTimer();
+        if (typeof initLoveQuotes === 'function') initLoveQuotes();
+      }
     });
-    vault.appendChild(wrap);
   }
-
-  function initPrivateCorner() {
-    const promisesBtn = document.getElementById('promises-btn');
-    const jokesBtn = document.getElementById('jokes-btn');
-    const promisesModal = document.getElementById('promises-modal');
-    const jokesModal = document.getElementById('jokes-modal');
-    const jokesVault = document.getElementById('jokes-vault');
-
-    if (jokesVault && !jokesVault.dataset.ready) {
-      jokesVault.dataset.ready = '1';
-      renderJokeCategory(jokesVault, '🤫 בדיחות פנימיות / זיכרונות שלנו', PRIVATE_JOKES.inside, 'inside');
-      renderJokeCategory(jokesVault, '💇 בדיחות בלונדיניות', PRIVATE_JOKES.blonde, 'blonde');
-    }
-
-    function openModal(modal) {
-      if (!modal) return;
-      modal.hidden = false;
-      modal.setAttribute('aria-hidden', 'false');
-      requestAnimationFrame(function () {
-        modal.classList.add('is-open');
-      });
-    }
-
-    function closeModal(modal) {
-      if (!modal) return;
-      modal.classList.remove('is-open');
-      modal.setAttribute('aria-hidden', 'true');
-      window.setTimeout(function () {
-        modal.hidden = true;
-      }, 350);
-    }
-
-    function bindOpen(btn, modal) {
-      if (!btn || btn.dataset.bound) return;
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', function () {
-        openModal(modal);
-      });
-    }
-
-    bindOpen(promisesBtn, promisesModal);
-    bindOpen(jokesBtn, jokesModal);
-
-    document.querySelectorAll('[data-close-modal]').forEach(function (btn) {
-      if (btn.dataset.bound) return;
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', function () {
-        const overlay = btn.closest('.modal-overlay');
-        closeModal(overlay);
-      });
-    });
-
-    document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
-      if (overlay.dataset.bound) return;
-      overlay.dataset.bound = '1';
-      overlay.addEventListener('click', function (e) {
-        if (e.target === overlay) closeModal(overlay);
-      });
-    });
-
-    if (!window.__privateEscBound) {
-      window.__privateEscBound = true;
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-          document.querySelectorAll('.modal-overlay.is-open').forEach(closeModal);
-        }
-      });
-    }
-  }
-
-
 
   function showAppNav() {
     const nav = document.getElementById('app-nav');
@@ -1174,7 +1016,7 @@
     });
     body.classList.add('has-app-nav');
     initAppNav();
-    initPersonalToggle();
+    if (typeof initPersonalToggle === 'function') initPersonalToggle();
   }
 
   function initAppNav() {
@@ -1184,24 +1026,32 @@
     nav.querySelectorAll('[data-scroll]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         const id = btn.getAttribute('data-scroll');
-        // Ensure destination sections are visible
         const hub = document.getElementById('main-hub');
         if (hub) {
           hub.hidden = false;
           hub.classList.add('is-visible');
         }
-        body.classList.add('stage-hub', 'has-app-nav');
-        body.classList.remove('stage-letter');
+        if (letterSection) {
+          letterSection.hidden = false;
+          letterSection.style.display = '';
+        }
         if (storySection) {
           storySection.hidden = false;
           storySection.classList.add('is-visible', 'is-inline');
         }
         const personal = document.getElementById('sec-personal');
         if (personal) personal.hidden = false;
-        if (id === 'story-section') initScrollReveals();
-        if (id === 'sec-vouchers') {
-          requestAnimationFrame(function () { initVouchers(); });
+        if (quizSection) quizSection.hidden = false;
+
+        // If quiz was collapsed and user opens it, expand again
+        if (id === 'sec-quiz' && quizSection) {
+          quizSection.classList.remove('is-collapsed');
+          quizLocked = false;
+          const badge = document.getElementById('quiz-done-badge');
+          if (badge) badge.style.display = 'none';
+          if (!quizSection.querySelector('.quiz-question')) startQuiz();
         }
+
         const el = document.getElementById(id);
         if (!el) return;
         nav.querySelectorAll('.app-nav-btn').forEach(function (b) {
@@ -1213,76 +1063,35 @@
     });
   }
 
-  function initPersonalToggle() {
-    const toggle = document.getElementById('personal-toggle');
-    const panel = document.getElementById('personal-panel');
-    if (!toggle || !panel || toggle.dataset.bound) return;
-    toggle.dataset.bound = '1';
-    toggle.addEventListener('click', function () {
-      const open = toggle.getAttribute('aria-expanded') === 'true';
-      if (open) {
-        toggle.setAttribute('aria-expanded', 'false');
-        panel.classList.remove('is-open');
-        window.setTimeout(function () {
-          panel.hidden = true;
-        }, 350);
-      } else {
-        panel.hidden = false;
-        toggle.setAttribute('aria-expanded', 'true');
-        requestAnimationFrame(function () {
-          panel.classList.add('is-open');
-        });
-        startTogetherTimer();
-        initLoveQuotes();
-      }
-    });
-  }
-
-
   function goToStory() {
     const hub = document.getElementById('main-hub');
     const personal = document.getElementById('sec-personal');
 
-    // Keep letter available for revisit; mark journey mode
-    letterSection.classList.add('is-journey');
-    letterSection.classList.remove('is-leaving');
-    letterSection.hidden = false;
-    letterSection.style.display = '';
-
+    if (letterSection) {
+      letterSection.hidden = false;
+      letterSection.style.display = '';
+      letterSection.classList.add('is-journey');
+      letterSection.classList.remove('is-leaving');
+    }
     if (hub) {
       hub.hidden = false;
       hub.classList.add('is-visible');
     }
-
     if (storySection) {
       storySection.hidden = false;
       storySection.classList.add('is-visible', 'is-inline');
     }
     if (personal) personal.hidden = false;
 
-    body.classList.remove('is-locked', 'stage-letter');
+    body.classList.remove('is-locked');
     body.classList.add('is-unlocked', 'has-app-nav', 'stage-hub');
-
     showAppNav();
     initScrollReveals();
     initParallax();
-    initReasons();
-    initLoveQuotes();
-    initPrivateCorner();
-    initAdminUnlock();
-    initPersonalToggle();
-    startTogetherTimer();
-
-    // Init vouchers after layout
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () {
-        initVouchers();
-      });
-    });
 
     window.setTimeout(function () {
-      if (hub) hub.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      else if (storySection) storySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const target = document.getElementById('story-section');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 60);
   }
 
@@ -1298,7 +1107,7 @@
       p.className = 'burst-piece';
       p.textContent = symbols[i % symbols.length];
       p.style.fontSize = 0.9 + Math.random() * 1.6 + 'rem';
-      p.style.color = i % 2 === 0 ? '#B76E79' : '#E8D5A3';
+      p.style.color = i % 2 === 0 ? '#C4878F' : '#F3E2B5';
       const angle = (Math.PI * 2 * i) / 36;
       const dist = 80 + Math.random() * 180;
       p.style.setProperty('--bx', Math.cos(angle) * dist + 'px');
@@ -1415,7 +1224,7 @@
         wobble: Math.random() * Math.PI * 2,
         wobbleSpeed: 0.008 + Math.random() * 0.015,
         isHeart: isHeart,
-        color: Math.random() > 0.5 ? '183,110,121' : '212,175,55',
+        color: Math.random() > 0.5 ? '196,122,138' : '224,192,120',
       };
     }
 

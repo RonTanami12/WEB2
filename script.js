@@ -194,27 +194,27 @@
   function openHomeExperience() {
     const hub = document.getElementById('main-hub');
     const personal = document.getElementById('sec-personal');
+    const home = document.getElementById('home-menu');
 
-    // Letter stage
-    if (letterSection) {
-      letterSection.hidden = false;
-      letterSection.style.display = '';
-      void letterSection.offsetWidth;
-      letterSection.classList.add('is-entering', 'is-journey', 'is-letter-only');
-      letterSection.classList.remove('is-leaving');
-    }
-
-    // Main hub with quiz + story + extras
     if (hub) {
       hub.hidden = false;
       hub.classList.add('is-visible');
+    }
+    if (home) {
+      home.hidden = false;
+      home.removeAttribute('hidden');
+    }
+    if (letterSection) {
+      letterSection.hidden = false;
+      letterSection.style.display = '';
+      letterSection.classList.add('is-entering', 'is-journey');
+      letterSection.classList.remove('is-leaving');
     }
     if (storySection) {
       storySection.hidden = false;
       storySection.classList.add('is-visible', 'is-inline');
     }
     if (personal) personal.hidden = false;
-
     if (quizSection) {
       quizSection.hidden = false;
       quizSection.classList.remove('is-leaving');
@@ -223,24 +223,20 @@
     }
 
     body.classList.remove('is-locked', 'stage-letter');
-    body.classList.add('is-unlocked', 'has-app-nav', 'stage-hub');
+    body.classList.add('is-unlocked', 'has-app-nav', 'stage-hub', 'site-panels');
 
     showAppNav();
-    initScrollReveals();
-    initParallax();
     bindQuizSkip();
+    showPanel('home');
 
-    // Soft scroll to letter first
-    window.setTimeout(function () {
-      const target = document.getElementById('sec-letter') || letterSection;
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-
-    // Init hub interactive bits after layout
     requestAnimationFrame(function () {
       if (typeof initReasons === 'function') initReasons();
       if (typeof initLoveQuotes === 'function') initLoveQuotes();
       if (typeof initPrivateCorner === 'function') initPrivateCorner();
+      if (typeof initPrescriptionBox === 'function') initPrescriptionBox();
+      if (typeof initCigarettePack === 'function') initCigarettePack();
+      if (typeof initFunWheel === 'function') initFunWheel();
+      if (typeof initCatchTheVibe === 'function') initCatchTheVibe();
       if (typeof initAdminUnlock === 'function') initAdminUnlock();
       if (typeof initPersonalToggle === 'function') initPersonalToggle();
       if (typeof startTogetherTimer === 'function') startTogetherTimer();
@@ -518,7 +514,7 @@
           const shell = quizSection.querySelector('.quiz-card') || quizSection;
           shell.appendChild(badge);
         }
-        badge.textContent = 'כל הכבוד! סיימת את החידון 💍 אפשר להמשיך לגלול באתר';
+        badge.textContent = 'כל הכבוד! סיימת את החידון 💍 אפשר לחזור לבית או לבחור משהו אחר';
         badge.style.display = 'block';
       }
     }, 1800);
@@ -577,11 +573,49 @@
     }, 900);
   }
 
+
+  function revealLetterInstant() {
+    if (typingTimer) {
+      clearTimeout(typingTimer);
+      typingTimer = null;
+    }
+    var boomWrap = document.getElementById('letter-boom-wrap');
+    if (boomWrap) boomWrap.hidden = true;
+
+    letterTitleEl.textContent = LETTER.title;
+    letterBodyEl.innerHTML = '';
+    LETTER.paragraphs.forEach(function (text) {
+      var p = document.createElement('p');
+      var parts = String(text).split('\n');
+      parts.forEach(function (part, idx) {
+        if (idx) p.appendChild(document.createElement('br'));
+        p.appendChild(document.createTextNode(part));
+      });
+      letterBodyEl.appendChild(p);
+    });
+    loveLetter.classList.add('is-boom');
+    finishLetterTyping();
+  }
+
+  function bindLetterBoom() {
+    var boomBtn = document.getElementById('letter-boom-btn');
+    var boomWrap = document.getElementById('letter-boom-wrap');
+    if (!boomBtn || boomBtn.dataset.bound) return;
+    boomBtn.dataset.bound = '1';
+    boomBtn.addEventListener('click', function () {
+      revealLetterInstant();
+    });
+    if (boomWrap) boomWrap.hidden = false;
+  }
+
   function startTypewriter() {
     letterTitleEl.textContent = '';
     letterBodyEl.innerHTML = '';
     continueStoryBtn.hidden = true;
     continueStoryBtn.classList.remove('is-shown');
+    bindLetterBoom();
+    var boomWrap = document.getElementById('letter-boom-wrap');
+    if (boomWrap) boomWrap.hidden = false;
 
     const cursor = document.createElement('span');
     cursor.className = 'letter-cursor';
@@ -648,11 +682,22 @@
   }
 
   function finishLetterTyping() {
+    var boomWrap = document.getElementById('letter-boom-wrap');
+    if (boomWrap) boomWrap.hidden = true;
     showLetterExtras();
+    if (continueStoryBtn) {
+      continueStoryBtn.hidden = false;
+      requestAnimationFrame(function () {
+        continueStoryBtn.classList.add('is-shown');
+      });
+    }
   }
 
   if (continueStoryBtn) {
-    continueStoryBtn.addEventListener('click', goToStory);
+    continueStoryBtn.addEventListener('click', function () {
+      if (typeof showPanel === 'function') showPanel('home');
+      else goToStory();
+    });
   }
 
 
@@ -677,7 +722,8 @@
     { id: 'v4', text: 'יום כיף מפנק ורגוע רק שנינו' },
   ];
 
-  const LS_VOUCHER = 'avital_voucher_v1';
+  const LS_VOUCHER = 'avital_voucher_v2';
+  const ADMIN_CODE = '1105';
 
   const letterExtras = document.getElementById('letter-extras');
   const reasonCard = document.getElementById('reason-card');
@@ -758,51 +804,149 @@
     });
   }
 
+
+  function normalizeVoucherState(raw) {
+    // Supports legacy {id, redeemed} and new {extraSlots, scratched:{}}
+    if (!raw || typeof raw !== 'object') {
+      return { extraSlots: 0, scratched: {} };
+    }
+    if (raw.scratched) {
+      return {
+        extraSlots: typeof raw.extraSlots === 'number' ? raw.extraSlots : 0,
+        scratched: raw.scratched || {},
+      };
+    }
+    if (raw.id) {
+      var scratched = {};
+      scratched[raw.id] = { redeemed: !!raw.redeemed, at: raw.at || Date.now() };
+      return { extraSlots: 0, scratched: scratched };
+    }
+    return { extraSlots: 0, scratched: {} };
+  }
+
   function readVoucherState() {
     try {
-      const raw = localStorage.getItem(LS_VOUCHER);
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) {
-      return null;
-    }
+      var raw = localStorage.getItem(LS_VOUCHER);
+      if (raw) return normalizeVoucherState(JSON.parse(raw));
+      // migrate v1
+      var legacy = localStorage.getItem('avital_voucher_v1');
+      if (legacy) {
+        var migrated = normalizeVoucherState(JSON.parse(legacy));
+        writeVoucherState(migrated);
+        return migrated;
+      }
+    } catch (e) { /* ignore */ }
+    return { extraSlots: 0, scratched: {} };
   }
 
   function writeVoucherState(state) {
     try {
       localStorage.setItem(LS_VOUCHER, JSON.stringify(state));
-    } catch (e) { /* ignore quota */ }
+    } catch (e) { /* ignore */ }
+  }
+
+  function allowedVoucherCount(state) {
+    return 1 + (state.extraSlots || 0);
+  }
+
+  function scratchedCount(state) {
+    return Object.keys(state.scratched || {}).length;
+  }
+
+  function refreshVoucherLocks() {
+    var state = readVoucherState();
+    var allowed = allowedVoucherCount(state);
+    var used = scratchedCount(state);
+    var remaining = Math.max(0, allowed - used);
+
+    if (voucherLockMsg) {
+      if (used >= 1 && remaining === 0) {
+        voucherLockMsg.hidden = false;
+        voucherLockMsg.textContent = 'הגעת למכסת השוברים. אפשר לבקש אישור מנהל לשובר נוסף ✨';
+      } else if (remaining > 0 && used >= 1) {
+        voucherLockMsg.hidden = false;
+        voucherLockMsg.textContent = 'נשאר לך עוד ' + remaining + ' שובר' + (remaining > 1 ? 'ים' : '') + ' לפתוח 🎁';
+      } else {
+        voucherLockMsg.hidden = false;
+        voucherLockMsg.textContent = 'בחרי שובר אחד, גרדי אותו וצלמי לי מסך כדי לממש!';
+      }
+    }
+
+    if (!vouchersGrid) return;
+    vouchersGrid.querySelectorAll('.voucher-card').forEach(function (c) {
+      var id = c.dataset.id;
+      var isScratched = !!(state.scratched && state.scratched[id]);
+      if (isScratched) {
+        c.classList.remove('is-disabled');
+        c.classList.add('is-chosen');
+      } else if (remaining <= 0) {
+        c.classList.add('is-disabled');
+      } else {
+        c.classList.remove('is-disabled');
+      }
+    });
+  }
+
+  function initAdminUnlock() {
+    var btn = document.getElementById('voucher-admin-btn');
+    var hint = document.getElementById('voucher-admin-hint');
+    if (!btn || btn.dataset.bound) return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', function () {
+      var code = window.prompt('הכניסי קוד אישור מנהל:');
+      if (code === null) return;
+      if (String(code).trim() === ADMIN_CODE) {
+        var state = readVoucherState();
+        state.extraSlots = (state.extraSlots || 0) + 1;
+        writeVoucherState(state);
+        refreshVoucherLocks();
+        // unlock disabled cards visually for new slot
+        vouchersGrid && vouchersGrid.querySelectorAll('.voucher-card.is-disabled').forEach(function (c) {
+          // refreshVoucherLocks already handles
+        });
+        if (hint) {
+          hint.hidden = false;
+          hint.classList.add('is-ok');
+          hint.textContent = 'אושר! נפתח שובר נוסף אחד (סה״כ ' + allowedVoucherCount(state) + ') 🔑';
+        }
+      } else if (hint) {
+        hint.hidden = false;
+        hint.classList.remove('is-ok');
+        hint.textContent = 'קוד שגוי... נסי שוב 😉';
+      }
+    });
   }
 
   function initVouchers() {
     if (!vouchersGrid || vouchersGrid.dataset.ready) return;
     vouchersGrid.dataset.ready = '1';
 
-    const saved = readVoucherState();
+    var saved = readVoucherState();
 
     VOUCHERS.forEach(function (v, index) {
-      const card = document.createElement('div');
+      var card = document.createElement('div');
       card.className = 'voucher-card';
       card.dataset.id = v.id;
 
-      const prize = document.createElement('div');
+      var prize = document.createElement('div');
       prize.className = 'voucher-prize';
       prize.innerHTML =
         '<span class="voucher-prize-label">שובר ' + (index + 1) + '</span>' +
         '<p class="voucher-prize-text"></p>';
       prize.querySelector('.voucher-prize-text').textContent = v.text;
 
-      const statusBtn = document.createElement('button');
+      var statusBtn = document.createElement('button');
       statusBtn.type = 'button';
       statusBtn.className = 'voucher-status-btn';
       statusBtn.hidden = true;
       statusBtn.textContent = 'טרם מומש ⏳';
       prize.appendChild(statusBtn);
 
-      const canvas = document.createElement('canvas');
+      var canvas = document.createElement('canvas');
       canvas.className = 'voucher-scratch';
       canvas.setAttribute('aria-label', 'גרדי כדי לחשוף את השובר');
 
-      const hint = document.createElement('div');
+      var hint = document.createElement('div');
       hint.className = 'voucher-hint';
       hint.innerHTML = '<span>🎁 גרדי כאן</span><small>שובר מס׳ ' + (index + 1) + '</small>';
 
@@ -814,19 +958,18 @@
       setupScratchCard(card, canvas, hint, statusBtn, v, saved);
     });
 
-    if (saved && saved.id) {
-      if (voucherLockMsg) voucherLockMsg.hidden = false;
-    }
+    refreshVoucherLocks();
+    initAdminUnlock();
   }
 
   function setupScratchCard(card, canvas, hint, statusBtn, voucher, saved) {
-    const ctx = canvas.getContext('2d');
-    let scratching = false;
-    let revealed = false;
+    var ctx = canvas.getContext('2d');
+    var scratching = false;
+    var revealed = false;
 
     function resizeCanvas() {
-      const rect = card.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var rect = card.getBoundingClientRect();
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.max(1, Math.floor(rect.width * dpr));
       canvas.height = Math.max(1, Math.floor(rect.height * dpr));
       canvas.style.width = rect.width + 'px';
@@ -836,17 +979,15 @@
     }
 
     function paintCover(w, h) {
-      const grad = ctx.createLinearGradient(0, 0, w, h);
+      var grad = ctx.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, '#F3E2B5');
       grad.addColorStop(0.45, '#D4AF37');
       grad.addColorStop(1, '#C4878F');
       ctx.globalCompositeOperation = 'source-over';
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
-
-      // subtle shimmer pattern
       ctx.fillStyle = 'rgba(255,255,255,0.12)';
-      for (let i = -h; i < w + h; i += 14) {
+      for (var i = -h; i < w + h; i += 14) {
         ctx.beginPath();
         ctx.moveTo(i, 0);
         ctx.lineTo(i + 8, 0);
@@ -858,9 +999,9 @@
     }
 
     function scratchAt(clientX, clientY) {
-      const rect = canvas.getBoundingClientRect();
-      const x = clientX - rect.left;
-      const y = clientY - rect.top;
+      var rect = canvas.getBoundingClientRect();
+      var x = clientX - rect.left;
+      var y = clientY - rect.top;
       ctx.globalCompositeOperation = 'destination-out';
       ctx.beginPath();
       ctx.arc(x, y, 22, 0, Math.PI * 2);
@@ -868,30 +1009,16 @@
     }
 
     function clearedRatio() {
-      const w = canvas.width;
-      const h = canvas.height;
+      var w = canvas.width;
+      var h = canvas.height;
       if (!w || !h) return 0;
-      const data = ctx.getImageData(0, 0, w, h).data;
-      let clear = 0;
-      const step = 4 * 8; // sample every 8px
-      for (let i = 3; i < data.length; i += step) {
+      var data = ctx.getImageData(0, 0, w, h).data;
+      var clear = 0;
+      var step = 4 * 8;
+      for (var i = 3; i < data.length; i += step) {
         if (data[i] < 128) clear += 1;
       }
-      const samples = Math.ceil(data.length / step);
-      return clear / samples;
-    }
-
-    function revealCard(redeemed) {
-      if (revealed) return;
-      revealed = true;
-      card.classList.add('is-revealed', 'is-chosen');
-      canvas.classList.add('is-done');
-      hint.style.opacity = '0';
-      statusBtn.hidden = false;
-      setRedeemedUI(!!redeemed);
-      writeVoucherState({ id: voucher.id, redeemed: !!redeemed, at: Date.now() });
-      lockOtherVouchers(voucher.id);
-      if (voucherLockMsg) voucherLockMsg.hidden = false;
+      return clear / Math.ceil(data.length / step);
     }
 
     function setRedeemedUI(redeemed) {
@@ -904,59 +1031,65 @@
       }
     }
 
-    function lockOtherVouchers(chosenId) {
-      vouchersGrid.querySelectorAll('.voucher-card').forEach(function (c) {
-        if (c.dataset.id !== chosenId) {
-          c.classList.add('is-disabled');
-        }
-      });
+    function revealCard(redeemed) {
+      if (revealed) return;
+      revealed = true;
+      card.classList.add('is-revealed', 'is-chosen');
+      canvas.classList.add('is-done');
+      hint.style.opacity = '0';
+      statusBtn.hidden = false;
+      setRedeemedUI(!!redeemed);
+
+      var state = readVoucherState();
+      state.scratched[voucher.id] = { redeemed: !!redeemed, at: Date.now() };
+      writeVoucherState(state);
+      refreshVoucherLocks();
     }
 
     function canScratch() {
-      const state = readVoucherState();
-      if (!state) return true;
-      return state.id === voucher.id;
+      var state = readVoucherState();
+      if (state.scratched[voucher.id]) return true;
+      return scratchedCount(state) < allowedVoucherCount(state);
     }
 
     statusBtn.addEventListener('click', function (e) {
       e.stopPropagation();
-      const state = readVoucherState();
-      if (!state || state.id !== voucher.id) return;
-      const next = !state.redeemed;
-      writeVoucherState({ id: voucher.id, redeemed: next, at: Date.now() });
+      var state = readVoucherState();
+      if (!state.scratched[voucher.id]) return;
+      var next = !state.scratched[voucher.id].redeemed;
+      state.scratched[voucher.id].redeemed = next;
+      state.scratched[voucher.id].at = Date.now();
+      writeVoucherState(state);
       setRedeemedUI(next);
     });
 
-    // Restore from localStorage
-    if (saved && saved.id === voucher.id) {
-      revealCard(!!saved.redeemed);
-      // fully clear canvas
-      const rect = card.getBoundingClientRect();
-      resizeCanvas();
-      ctx.clearRect(0, 0, rect.width || canvas.width, rect.height || canvas.height);
+    if (saved.scratched && saved.scratched[voucher.id]) {
+      var entry = saved.scratched[voucher.id];
+      revealed = true;
+      card.classList.add('is-revealed', 'is-chosen');
       canvas.classList.add('is-done');
-    } else if (saved && saved.id !== voucher.id) {
-      card.classList.add('is-disabled');
+      hint.style.opacity = '0';
+      statusBtn.hidden = false;
+      setRedeemedUI(!!entry.redeemed);
       resizeCanvas();
+      var rect = card.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width || canvas.width, rect.height || canvas.height);
     } else {
       resizeCanvas();
     }
 
     function onStart(e) {
       if (revealed || !canScratch()) return;
-      // If another card already chosen somehow
-      const state = readVoucherState();
-      if (state && state.id !== voucher.id) return;
       scratching = true;
       card.classList.add('is-scratching');
-      const point = e.touches ? e.touches[0] : e;
+      var point = e.touches ? e.touches[0] : e;
       scratchAt(point.clientX, point.clientY);
       e.preventDefault();
     }
 
     function onMove(e) {
       if (!scratching || revealed) return;
-      const point = e.touches ? e.touches[0] : e;
+      var point = e.touches ? e.touches[0] : e;
       scratchAt(point.clientX, point.clientY);
       if (clearedRatio() > 0.45) {
         revealCard(false);
@@ -967,9 +1100,7 @@
 
     function onEnd() {
       scratching = false;
-      if (!revealed && clearedRatio() > 0.45) {
-        revealCard(false);
-      }
+      if (!revealed && clearedRatio() > 0.45) revealCard(false);
     }
 
     canvas.addEventListener('mousedown', onStart);
@@ -978,12 +1109,1139 @@
     canvas.addEventListener('touchstart', onStart, { passive: false });
     canvas.addEventListener('touchmove', onMove, { passive: false });
     canvas.addEventListener('touchend', onEnd);
-
     window.addEventListener('resize', function () {
       if (!revealed) resizeCanvas();
     });
   }
 
+  // ——— Private corner: promises + jokes vault ———
+  const PRIVATE_JOKES = {
+    inside: [
+      { label: 'זיכרון פנימי שלנו', text: 'השיחות על איחוד הצלה והמסאז\' במאזדה השחורה 😉' },
+      { label: 'רק שלנו', text: 'כשאומרים "נצא לנסיעה קצרה" ופתאום זה הופך לשיחת נשמות של שעתיים.' },
+      { label: 'הקוד הסודי', text: '1105 זה לא רק קוד — זה תאריך קטן בלב עם חיוך גדול.' },
+      { label: 'פייסבוק', text: 'הודעה אחת בפייסבוק... ופתאום כל החיים קיבלו פלייליסט חדש.' },
+      { label: 'יין לבן', text: 'תכנית ערב: יין לבן, צחוק, ואת. שאר הפרטים — מסווגים.' },
+    ],
+    blonde: [
+      { label: 'בלונדינית וקליטה', text: 'למה בלונדינית שמה את הטלפון על הרצפה? כדי לבדוק אם יש קליטה מהרצפה.' },
+      { label: 'בלונדינית ודג', text: 'איך בלונדינית מנסה להרוג דג? היא מנסה להטביע אותו במים.' },
+      { label: 'בלונדינית ושלג', text: 'מה בלונדינית עושה כשהיא רואה שלג? מביאה כפית כי זה נראה כמו גלידה.' },
+      { label: 'בלונדינית וקיר', text: 'למה בלונדינית מטפסת על קיר זכוכית? כדי לראות מה יש בצד השני.' },
+      { label: 'בלונדינית וג\'לי', text: 'בלונדינית פותחת את המקרר, רואה את הג\'לי רועד ואומרת: \'אל תפחד, אני רק רוצה לקחת משהו לשתות!\'' },
+      { label: 'בלונדינית ומעלית', text: 'בלונדינית נכנסת למעלית, המעלית אומרת "קומה 3" והיא עונה: "תודה, גם אני בלונדינית".' },
+      { label: 'בלונדינית ומראה', text: 'בלונדינית מסתכלת במראה עם עיניים עצומות. למה? כדי לראות איך היא נראית כשהיא ישנה.' },
+      { label: 'בלונדינית ואוטובוס', text: 'למה בלונדינית מחכה באוטובוס עם כרטיס טיסה? כי כתוב עליו "boarding pass".' },
+      { label: 'בלונדינית וגשם', text: 'בלונדינית רואה גשם ופותחת שמשייה בתוך הבית — "כדי להתאמן לפני שיוצאים".' },
+      { label: 'בלונדינית וחשמל', text: 'למה בלונדינית שמה סוללות במקרר? כדי שיהיה לה חשמל קר.' },
+      { label: 'בלונדינית ופיצה', text: 'בלונדינית מזמינה פיצה ואומרת: "תחתוך ל־4, אני לא אצליח לסיים 8".' },
+      { label: 'בלונדינית ושעון', text: 'למה בלונדינית מסתכלת על השעון דרך החלון? כדי לראות מה השעה בחוץ.' },
+      { label: 'בלונדינית וים', text: 'בלונדינית הולכת לים עם מייבש שיער — "כדי לייבש את הגלים".' },
+      { label: 'בלונדינית וסמס', text: 'למה בלונדינית שולחת סמס לעצמה? כדי לקבל הודעה ממישהי חכמה.' },
+      { label: 'בלונדינית וקפה', text: 'בלונדינית שמה סוכר על העיניים — "כי אמרו לי שהבוקר צריך להיות מתוק".' },
+      { label: 'בלונדינית ורמזור', text: 'למה בלונדינית שמחה כשהרמזור אדום? כי היא חושבת שזה פלאש של צילום.' },
+      { label: 'בלונדינית וספר', text: 'בלונדינית קנתה ספר דיאטה ואכלה את הפרק הראשון — "כי כתוב chew on this".' },
+      { label: 'בלונדינית וחלון', text: 'למה בלונדינית סוגרת את העיניים ליד החלון? כדי לא לראות את עצמה משתקפת בחושך.' },
+      { label: 'בלונדינית וברז', text: 'בלונדינית פותחת ברז חם וקר ביחד — "כדי לקבל מים פושרים של ספא".' },
+      { label: 'בלונדינית וווייז', text: 'בלונדינית צועקת על ווייז: "למה אתה תמיד יודע איפה אני??"' },
+      { label: 'בלונדינית וכרית', text: 'למה בלונדינית שמה כרית על הטלוויזיה? כדי שהסרט יישן טוב בלילה.' },
+      { label: 'בלונדינית ומטריה', text: 'בלונדינית לוקחת מטריה ביום שמש — "כדי שהשמש לא תירטב".' },
+      { label: 'בלונדינית וחשבון', text: 'בלונדינית בודקת אם 2+2=4 בגוגל... "רק לוודא שהאינטרנט עובד".' },
+      { label: 'בלונדינית ובלון', text: 'למה בלונדינית מחבקת בלון? כי אמרו לה "תתרוממי מעל הבעיות".' },
+      { label: 'בלונדינית ולילה', text: 'בלונדינית מדליקה פנס ביום — "כדי שהחושך לא יופתע בערב".' },
+      { label: 'בלונדינית וסושי', text: 'בלונדינית מבקשת סושי בלי דג... "כי אני על דיאטה מדגים".' },
+      { label: 'בלונדינית וזיפ', text: 'למה בלונדינית סוגרת קובץ בזיפ? כדי שיהיה לו חורף חם.' },
+      { label: 'בלונדינית וסוללה', text: 'בלונדינית טוענת את הפלאפון על הגז — "כי כתוב Hotspot".' },
+      { label: 'בלונדינית ויוגה', text: 'בלונדינית בשיעור יוגה שואלת: "מתי מגיעים לפוזה של נטפליקס?"' },
+      { label: 'בלונדינית ולב', text: 'למה בלונדינית שמה לב על המקרר? כדי שהאוכל יידע שאוהבים אותו.' },
+    ],
+  };
+
+  function renderJokeCategory(vault, title, items, kind) {
+    var wrap = document.createElement('div');
+    wrap.className = 'joke-category';
+    var h = document.createElement('p');
+    h.className = 'joke-category-title';
+    h.textContent = title;
+    wrap.appendChild(h);
+
+    items.forEach(function (joke) {
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'joke-card joke-card--' + kind;
+      card.innerHTML =
+        '<div class="joke-card-face"><span class="joke-card-tag"></span><div class="joke-card-label"></div></div>' +
+        '<div class="joke-card-body"></div>';
+      card.querySelector('.joke-card-tag').textContent = kind === 'inside' ? 'בדיחה פנימית' : 'בדיחת בלונדינית';
+      card.querySelector('.joke-card-label').textContent = joke.label + ' ▾';
+      card.querySelector('.joke-card-body').textContent = joke.text;
+      card.addEventListener('click', function () {
+        var open = card.classList.contains('is-open');
+        vault.querySelectorAll('.joke-card').forEach(function (c) {
+          c.classList.remove('is-open');
+          var lab = c.querySelector('.joke-card-label');
+          if (lab) lab.textContent = lab.textContent.replace(' ▴', ' ▾');
+        });
+        if (!open) {
+          card.classList.add('is-open');
+          card.querySelector('.joke-card-label').textContent = joke.label + ' ▴';
+        }
+      });
+      wrap.appendChild(card);
+    });
+    vault.appendChild(wrap);
+  }
+
+
+  // ——— Love Prescription Box ———
+  const RX_MEDS = {
+    stress: {
+      emoji: '💊',
+      title: 'כדור לחץ',
+      label: 'הוראות שימוש — רוגע מיידי',
+      body: 'קחי נשימה עמוקה, תני לכתפיים ליפול, ותזכרי: את לא לבד בזה. אני כאן — האוזן, החיבוק, והשקט שלך.',
+      side: 'תופעת לוואי מאושרת: חיוך קטן בצד הפה תוך 10 שניות. אם הגעגוע גובר — חזרי על המנה.',
+    },
+    miss: {
+      emoji: '💓',
+      title: 'ויטמין געגוע',
+      label: 'תוסף תזונה רגשי',
+      body: 'רכיב פעיל: זיכרון של הצחוק שלך בנסיעה במאזדה. מנה מומלצת: לחשוב עלייך עכשיו… אופס, כבר קרה.',
+      side: 'אייקון רשמי: 🌙✨ · כיתוב על הבקבוק: "חסרה לי גם כשאת ממש לידי".',
+    },
+    bandaid: {
+      emoji: '🩹',
+      title: 'פלסטר לריב',
+      label: 'עזרה ראשונה זוגית',
+      body: 'שלב 1: חיבוק של לפחות 7 שניות. שלב 2: "אני מצטער/ת גם אם זה מסובך". שלב 3: נשיקה על המצח. ריפוי מובטח.',
+      side: 'הערה רפואית: אסור לשמור טינה במקרר ליד הג\'לי. רק שוקולד וסליחה.',
+    },
+    syrup: {
+      emoji: '🧴',
+      title: 'סירופ מתוק',
+      label: 'מגביר מצב רוח',
+      body: 'את יפה בלי איפור, חזקה בלי להעמיד פנים, ומתוקה גם כשאת עייפה. המנה היומית שלי ממך — תמיד מעל לנדרש.',
+      side: 'אזהרה: עלול לגרום להתאהבות חוזרת. אין צורך במרשם נוסף — כבר נרשמת לי על הלב.',
+    },
+  };
+
+
+  // ——— Romantic Cigarette Pack ———
+  const CIG_NOTES = [
+    {
+      id: 'c1',
+      emoji: '☕',
+      title: 'קופון רשמי',
+      text: 'קופון רשמי: הפסקת קפה וסיגריה במרפסת לפי דרישה – הקפה עלי!',
+    },
+    {
+      id: 'c2',
+      emoji: '🔥',
+      title: 'הדלקה',
+      text: 'את מעשנת, אבל את זאת שהדלקת בי משהו חזק.',
+    },
+    {
+      id: 'c3',
+      emoji: '🩹',
+      title: 'כרטיס פיוס',
+      text: 'כרטיס פיוס: עוצרים הכל, יוצאים למרפסת ועוברים לחיבוק.',
+    },
+    {
+      id: 'c4',
+      emoji: '🌙',
+      title: 'הסיבה האמיתית',
+      text: 'הסיבה האמיתית: אני פשוט מת על השיחות השקטות שלנו בלילה.',
+    },
+    {
+      id: 'c5',
+      emoji: '💆',
+      title: 'קופון VIP',
+      text: 'קופון VIP: מסז\' כתפיים מפנק בזמן הפסקת הסיגריה.',
+    },
+  ];
+
+  const LS_CIG = 'avital_cig_read_v1';
+
+  function readCigState() {
+    try {
+      var raw = localStorage.getItem(LS_CIG);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function writeCigState(state) {
+    try {
+      localStorage.setItem(LS_CIG, JSON.stringify(state));
+    } catch (e) { /* ignore */ }
+  }
+
+
+  // ——— Late Night Wheel of Fun ———
+  const WHEEL_TASKS = [
+    { emoji: '💆', text: 'מסאז׳ מרגיע לכתפיים ולגב למשך 3 דקות — בלי טלפונים 💆', color: '#8B3A4A' },
+    { emoji: '😘', text: 'נשיקה איטית ומלטפת על המצח, על הלחי, ואז על השפתיים 😘', color: '#C4878F' },
+    { emoji: '🤗', text: 'חיבוק מוחץ של 30 שניות בלי לדבר בכלל 🤗', color: '#B76E79' },
+    { emoji: '✋', text: 'להחזיק ידיים ולהסתכל אחד לשנייה בעיניים במשך דקה ✋', color: '#D4A5AB' },
+    { emoji: '🎶', text: 'שיר אחד איטי — ריקוד צמוד בסלון עכשיו 🎶', color: '#9A6B3F' },
+    { emoji: '🫶', text: 'ללחוש משהו שאת/ה אוהב/ת בי במיוחד — ואז חיבוק חם 🫶', color: '#E0C078' },
+  ];
+
+  function initFunWheel() {
+    var canvas = document.getElementById('wheel-canvas');
+    var spinBtn = document.getElementById('wheel-spin-btn');
+    var modal = document.getElementById('wheel-modal');
+    if (!canvas || !spinBtn || !modal || spinBtn.dataset.bound) return;
+    spinBtn.dataset.bound = '1';
+
+    var ctx = canvas.getContext('2d');
+    var size = canvas.width;
+    var cx = size / 2;
+    var cy = size / 2;
+    var radius = size / 2 - 8;
+    var n = WHEEL_TASKS.length;
+    var slice = (Math.PI * 2) / n;
+    var rotation = 0;
+    var spinning = false;
+    var rafId = null;
+
+    // Audio: soft tick using Web Audio API (no external files)
+    var audioCtx = null;
+    function ensureAudio() {
+      if (audioCtx) return audioCtx;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        audioCtx = null;
+      }
+      return audioCtx;
+    }
+
+    function playTick(freq) {
+      var ac = ensureAudio();
+      if (!ac) return;
+      if (ac.state === 'suspended') ac.resume();
+      var osc = ac.createOscillator();
+      var gain = ac.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = freq || 680;
+      gain.gain.value = 0.0001;
+      gain.gain.exponentialRampToValueAtTime(0.05, ac.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start();
+      osc.stop(ac.currentTime + 0.09);
+    }
+
+    function playWin() {
+      var ac = ensureAudio();
+      if (!ac) return;
+      if (ac.state === 'suspended') ac.resume();
+      [523, 659, 784].forEach(function (f, i) {
+        var osc = ac.createOscillator();
+        var gain = ac.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = f;
+        gain.gain.value = 0.0001;
+        var t = ac.currentTime + i * 0.1;
+        gain.gain.exponentialRampToValueAtTime(0.06, t + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.start(t);
+        osc.stop(t + 0.28);
+      });
+    }
+
+    function drawWheel() {
+      ctx.clearRect(0, 0, size, size);
+      for (var i = 0; i < n; i++) {
+        var start = rotation + i * slice - Math.PI / 2;
+        var end = start + slice;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, start, end);
+        ctx.closePath();
+        ctx.fillStyle = WHEEL_TASKS[i].color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,246,239,0.22)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // label
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(start + slice / 2);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#fff6ef';
+        ctx.font = 'bold 13px Heebo, sans-serif';
+        var label = WHEEL_TASKS[i].emoji;
+        ctx.fillText(label, radius - 18, 5);
+        ctx.restore();
+      }
+
+      // inner ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, 48, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(12, 8, 14, 0.92)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(243, 226, 181, 0.45)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    function currentIndex() {
+      // pointer at top (-PI/2). Convert rotation to index
+      var normalized = ((-rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      var idx = Math.floor(normalized / slice) % n;
+      return idx;
+    }
+
+    function spin() {
+      if (spinning) return;
+      spinning = true;
+      spinBtn.disabled = true;
+      canvas.classList.add('is-spinning');
+      ensureAudio();
+
+      var extraTurns = 4 + Math.random() * 3; // 4-7 full turns
+      var targetIndex = Math.floor(Math.random() * n);
+      // We want targetIndex under pointer when done
+      var targetRot = extraTurns * Math.PI * 2 + (n - targetIndex) * slice - slice / 2;
+      // continue from current rotation smoothly
+      var startRot = rotation;
+      // align so final index matches targetIndex
+      var base = ((-startRot % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      var desired = targetIndex * slice + slice / 2;
+      var delta = ((desired - base) + Math.PI * 2) % (Math.PI * 2);
+      var totalDelta = extraTurns * Math.PI * 2 + delta;
+      // spin direction: increase rotation clockwise visually
+      // our draw uses rotation added to angles; increasing rotation spins CCW labels — fine
+      var endRot = startRot - totalDelta; // negative so wheel spins "forward" under top pointer
+
+      var duration = 3400 + Math.random() * 700;
+      var t0 = performance.now();
+      var lastTickSlice = -1;
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function frame(now) {
+        var p = Math.min(1, (now - t0) / duration);
+        var e = easeOutCubic(p);
+        rotation = startRot + (endRot - startRot) * e;
+        drawWheel();
+
+        var tickSlice = Math.floor((((-rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2)) / slice);
+        if (tickSlice !== lastTickSlice) {
+          lastTickSlice = tickSlice;
+          playTick(520 + Math.random() * 200);
+        }
+
+        if (p < 1) {
+          rafId = requestAnimationFrame(frame);
+        } else {
+          spinning = false;
+          spinBtn.disabled = false;
+          canvas.classList.remove('is-spinning');
+          var idx = currentIndex();
+          // snap center of slice
+          playWin();
+          showWheelMission(WHEEL_TASKS[idx]);
+        }
+      }
+
+      rafId = requestAnimationFrame(frame);
+    }
+
+    function showWheelMission(task) {
+      var titleEl = document.getElementById('wheel-modal-title');
+      var bodyEl = document.getElementById('wheel-modal-body');
+      var emojiEl = document.getElementById('wheel-modal-emoji');
+      var confetti = document.getElementById('wheel-modal-confetti');
+      if (titleEl) titleEl.textContent = 'המשימה לשניכם עכשיו!';
+      if (bodyEl) bodyEl.textContent = task.text;
+      if (emojiEl) emojiEl.textContent = task.emoji;
+
+      modal.hidden = false;
+      modal.removeAttribute('hidden');
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(function () {
+        modal.classList.add('is-open');
+        if (confetti) {
+          confetti.innerHTML = '';
+          var symbols = ['🎉', '✨', '❤', '✦', '🎊'];
+          for (var i = 0; i < 22; i++) {
+            var s = document.createElement('span');
+            s.textContent = symbols[i % symbols.length];
+            s.style.fontSize = (0.8 + Math.random() * 1.1) + 'rem';
+            s.style.setProperty('--wx', ((Math.random() - 0.5) * 240) + 'px');
+            s.style.setProperty('--wy', ((Math.random() - 0.5) * 200) + 'px');
+            s.style.setProperty('--wr', ((Math.random() - 0.5) * 120) + 'deg');
+            s.style.animationDelay = (Math.random() * 0.25) + 's';
+            confetti.appendChild(s);
+          }
+        }
+      });
+    }
+
+    function closeWheelModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      window.setTimeout(function () {
+        modal.hidden = true;
+        modal.style.display = '';
+        var confetti = document.getElementById('wheel-modal-confetti');
+        if (confetti) confetti.innerHTML = '';
+      }, 350);
+    }
+
+    spinBtn.addEventListener('click', spin);
+
+    var okBtn = document.getElementById('wheel-modal-ok');
+    if (okBtn && !okBtn.dataset.bound) {
+      okBtn.dataset.bound = '1';
+      okBtn.addEventListener('click', closeWheelModal);
+    }
+    var closeBtn = modal.querySelector('[data-close-modal]');
+    if (closeBtn && !closeBtn.dataset.wheelBound) {
+      closeBtn.dataset.wheelBound = '1';
+      closeBtn.addEventListener('click', closeWheelModal);
+    }
+    if (!modal.dataset.wheelOverlay) {
+      modal.dataset.wheelOverlay = '1';
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeWheelModal();
+      });
+    }
+
+    drawWheel();
+
+    // redraw on resize for sharpness
+    window.addEventListener('resize', function () {
+      if (!spinning) drawWheel();
+    });
+  }
+
+
+
+  var CATCH_TARGET = 10;
+  var CATCH_ITEMS = [
+    { emoji: '☕', points: 1, kind: 'good', weight: 3 },
+    { emoji: '💖', points: 1, kind: 'good', weight: 3 },
+    { emoji: '🤗', points: 1, kind: 'good', weight: 2 },
+    { emoji: '🚬', points: 2, kind: 'bonus', weight: 2 },
+    { emoji: '🚫🚬', points: -1, kind: 'bad', weight: 2 }
+  ];
+
+  function initCatchTheVibe() {
+    var canvas = document.getElementById('catch-canvas');
+    var startBtn = document.getElementById('catch-start-btn');
+    var overlay = document.getElementById('catch-overlay');
+    var scoreEl = document.getElementById('catch-score');
+    var modal = document.getElementById('catch-modal');
+    if (!canvas || !startBtn || !overlay || !scoreEl || !modal || startBtn.dataset.bound) return;
+    startBtn.dataset.bound = '1';
+
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width;
+    var H = canvas.height;
+    var playing = false;
+    var won = false;
+    var score = 0;
+    var items = [];
+    var particles = [];
+    var spawnTimer = 0;
+    var lastTs = 0;
+    var rafId = null;
+    var keys = { left: false, right: false };
+    var pointerActive = false;
+
+    var basket = {
+      w: 78,
+      h: 40,
+      x: W / 2,
+      y: H - 58,
+      speed: 420
+    };
+
+    var audioCtx = null;
+    function ensureAudio() {
+      if (audioCtx) return audioCtx;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        audioCtx = null;
+      }
+      return audioCtx;
+    }
+
+    function beep(freq, dur, type, vol) {
+      var ac = ensureAudio();
+      if (!ac) return;
+      if (ac.state === 'suspended') ac.resume();
+      var osc = ac.createOscillator();
+      var gain = ac.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.value = 0.0001;
+      var t = ac.currentTime;
+      gain.gain.exponentialRampToValueAtTime(vol || 0.05, t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.12));
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(t);
+      osc.stop(t + (dur || 0.12) + 0.02);
+    }
+
+    function pickItem() {
+      var total = 0;
+      for (var i = 0; i < CATCH_ITEMS.length; i++) total += CATCH_ITEMS[i].weight;
+      var r = Math.random() * total;
+      for (var j = 0; j < CATCH_ITEMS.length; j++) {
+        r -= CATCH_ITEMS[j].weight;
+        if (r <= 0) return CATCH_ITEMS[j];
+      }
+      return CATCH_ITEMS[0];
+    }
+
+    function spawnItem() {
+      var def = pickItem();
+      var size = def.kind === 'bad' ? 34 : 30;
+      items.push({
+        emoji: def.emoji,
+        points: def.points,
+        kind: def.kind,
+        x: 28 + Math.random() * (W - 56),
+        y: -30,
+        vy: 110 + Math.random() * 130,
+        size: size,
+        rot: (Math.random() - 0.5) * 0.4,
+        spin: (Math.random() - 0.5) * 1.2
+      });
+    }
+
+    function burst(x, y, good) {
+      var symbols = good ? ['✨', '❤', '✦', '☕'] : ['💨', '·', '×'];
+      for (var i = 0; i < 8; i++) {
+        particles.push({
+          x: x,
+          y: y,
+          vx: (Math.random() - 0.5) * 180,
+          vy: -40 - Math.random() * 120,
+          life: 0.55 + Math.random() * 0.35,
+          age: 0,
+          emoji: symbols[i % symbols.length],
+          size: 10 + Math.random() * 8
+        });
+      }
+    }
+
+    function setScore(n) {
+      score = Math.max(0, n);
+      scoreEl.textContent = String(score);
+    }
+
+    function resetGame() {
+      items = [];
+      particles = [];
+      spawnTimer = 0.35;
+      setScore(0);
+      basket.x = W / 2;
+      won = false;
+      playing = false;
+      canvas.classList.remove('is-playing');
+      overlay.classList.remove('is-hidden');
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      drawFrame(0);
+    }
+
+    function startGame() {
+      ensureAudio();
+      items = [];
+      particles = [];
+      spawnTimer = 0.2;
+      setScore(0);
+      basket.x = W / 2;
+      won = false;
+      playing = true;
+      lastTs = 0;
+      canvas.classList.add('is-playing');
+      overlay.classList.add('is-hidden');
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function pointerToX(clientX) {
+      var rect = canvas.getBoundingClientRect();
+      var scale = W / rect.width;
+      return (clientX - rect.left) * scale;
+    }
+
+    function onPointerDown(e) {
+      if (!playing || won) return;
+      pointerActive = true;
+      basket.x = Math.max(basket.w / 2, Math.min(W - basket.w / 2, pointerToX(e.clientX)));
+      if (canvas.setPointerCapture) {
+        try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+      e.preventDefault();
+    }
+
+    function onPointerMove(e) {
+      if (!playing || won || !pointerActive) return;
+      basket.x = Math.max(basket.w / 2, Math.min(W - basket.w / 2, pointerToX(e.clientX)));
+      e.preventDefault();
+    }
+
+    function onPointerUp() {
+      pointerActive = false;
+    }
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', onPointerUp);
+    canvas.addEventListener('pointercancel', onPointerUp);
+    canvas.addEventListener('pointerleave', onPointerUp);
+
+    window.addEventListener('keydown', function (e) {
+      if (!playing || won) return;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        keys.left = true;
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        keys.right = true;
+        e.preventDefault();
+      }
+    });
+    window.addEventListener('keyup', function (e) {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+    });
+
+    function hitTest(item) {
+      var bx = basket.x - basket.w / 2;
+      var by = basket.y - 8;
+      var bw = basket.w;
+      var bh = basket.h;
+      return (
+        item.x > bx + 6 &&
+        item.x < bx + bw - 6 &&
+        item.y + item.size * 0.25 > by &&
+        item.y < by + bh
+      );
+    }
+
+    function drawBasket() {
+      var x = basket.x;
+      var y = basket.y;
+      var w = basket.w;
+      var h = basket.h;
+
+      // cup body
+      var grad = ctx.createLinearGradient(x - w / 2, y, x + w / 2, y + h);
+      grad.addColorStop(0, '#f6e7c8');
+      grad.addColorStop(0.45, '#e0c078');
+      grad.addColorStop(1, '#c4878f');
+      ctx.beginPath();
+      ctx.moveTo(x - w / 2 + 6, y);
+      ctx.lineTo(x + w / 2 - 6, y);
+      ctx.quadraticCurveTo(x + w / 2 - 2, y + h, x + w / 2 - 14, y + h);
+      ctx.lineTo(x - w / 2 + 14, y + h);
+      ctx.quadraticCurveTo(x - w / 2 + 2, y + h, x - w / 2 + 6, y);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(26, 12, 18, 0.35)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // rim
+      ctx.beginPath();
+      ctx.ellipse(x, y, w / 2 - 4, 7, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff6ef';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(196, 122, 138, 0.55)';
+      ctx.stroke();
+
+      // heart on cup
+      ctx.font = '16px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('❤', x, y + h * 0.55);
+    }
+
+    function drawBackground() {
+      ctx.clearRect(0, 0, W, H);
+
+      // soft scanlines / arcade vibe
+      ctx.fillStyle = 'rgba(255, 246, 239, 0.015)';
+      for (var y = 0; y < H; y += 4) {
+        ctx.fillRect(0, y, W, 1);
+      }
+
+      // top glow
+      var g = ctx.createRadialGradient(W / 2, 0, 10, W / 2, 0, 220);
+      g.addColorStop(0, 'rgba(232, 160, 171, 0.12)');
+      g.addColorStop(1, 'transparent');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, 220);
+
+      // floor line
+      ctx.strokeStyle = 'rgba(243, 226, 181, 0.18)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(16, H - 28);
+      ctx.lineTo(W - 16, H - 28);
+      ctx.stroke();
+    }
+
+    function drawFrame(dt) {
+      drawBackground();
+
+      for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        ctx.save();
+        ctx.translate(it.x, it.y);
+        ctx.rotate(it.rot);
+        ctx.font = it.size + 'px "Segoe UI Emoji", "Apple Color Emoji", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = it.kind === 'bad' ? 'rgba(255,80,80,0.35)' : 'rgba(243,226,181,0.35)';
+        ctx.shadowBlur = 10;
+        ctx.fillText(it.emoji, 0, 0);
+        ctx.restore();
+      }
+
+      for (var p = 0; p < particles.length; p++) {
+        var pt = particles[p];
+        var alpha = 1 - pt.age / pt.life;
+        ctx.globalAlpha = Math.max(0, alpha);
+        ctx.font = pt.size + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(pt.emoji, pt.x, pt.y);
+        ctx.globalAlpha = 1;
+      }
+
+      drawBasket();
+
+      if (!playing && !won) {
+        // idle floating hint emoji
+        var t = performance.now() / 1000;
+        ctx.globalAlpha = 0.35;
+        ctx.font = '28px serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('☕', W * 0.28, 120 + Math.sin(t) * 8);
+        ctx.fillText('💖', W * 0.72, 150 + Math.cos(t * 1.2) * 10);
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    function loop(ts) {
+      if (!playing) return;
+      if (!lastTs) lastTs = ts;
+      var dt = Math.min(0.033, (ts - lastTs) / 1000);
+      lastTs = ts;
+
+      if (!pointerActive) {
+        if (keys.left) basket.x -= basket.speed * dt;
+        if (keys.right) basket.x += basket.speed * dt;
+        basket.x = Math.max(basket.w / 2, Math.min(W - basket.w / 2, basket.x));
+      }
+
+      spawnTimer -= dt;
+      if (spawnTimer <= 0) {
+        spawnItem();
+        spawnTimer = 0.55 + Math.random() * 0.55;
+      }
+
+      for (var i = items.length - 1; i >= 0; i--) {
+        var it = items[i];
+        it.y += it.vy * dt;
+        it.rot += it.spin * dt;
+        if (hitTest(it)) {
+          var next = score + it.points;
+          setScore(next);
+          burst(it.x, it.y, it.points > 0);
+          if (it.points > 0) beep(it.points > 1 ? 780 : 620, 0.1, 'triangle', 0.05);
+          else beep(180, 0.14, 'sawtooth', 0.035);
+          items.splice(i, 1);
+          if (score >= CATCH_TARGET) {
+            winGame();
+            return;
+          }
+          continue;
+        }
+        if (it.y > H + 40) items.splice(i, 1);
+      }
+
+      for (var p = particles.length - 1; p >= 0; p--) {
+        var pt = particles[p];
+        pt.age += dt;
+        pt.x += pt.vx * dt;
+        pt.y += pt.vy * dt;
+        pt.vy += 220 * dt;
+        if (pt.age >= pt.life) particles.splice(p, 1);
+      }
+
+      drawFrame(dt);
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function showWinModal() {
+      var confetti = document.getElementById('catch-modal-confetti');
+      modal.hidden = false;
+      modal.removeAttribute('hidden');
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(function () {
+        modal.classList.add('is-open');
+        if (confetti) {
+          confetti.innerHTML = '';
+          var symbols = ['🎉', '✨', '❤', '☕', '🎊', '😘'];
+          for (var i = 0; i < 24; i++) {
+            var s = document.createElement('span');
+            s.textContent = symbols[i % symbols.length];
+            s.style.fontSize = (0.85 + Math.random() * 1.1) + 'rem';
+            s.style.setProperty('--cx', ((Math.random() - 0.5) * 250) + 'px');
+            s.style.setProperty('--cy', ((Math.random() - 0.5) * 210) + 'px');
+            s.style.setProperty('--cr', ((Math.random() - 0.5) * 140) + 'deg');
+            s.style.animationDelay = (Math.random() * 0.28) + 's';
+            confetti.appendChild(s);
+          }
+        }
+      });
+    }
+
+    function closeWinModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      window.setTimeout(function () {
+        modal.hidden = true;
+        modal.style.display = '';
+        var confetti = document.getElementById('catch-modal-confetti');
+        if (confetti) confetti.innerHTML = '';
+        resetGame();
+      }, 350);
+    }
+
+    function winGame() {
+      won = true;
+      playing = false;
+      canvas.classList.remove('is-playing');
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      drawFrame(0);
+      beep(523, 0.12, 'sine', 0.05);
+      window.setTimeout(function () { beep(659, 0.12, 'sine', 0.05); }, 100);
+      window.setTimeout(function () { beep(784, 0.2, 'sine', 0.06); }, 200);
+      showWinModal();
+    }
+
+    startBtn.addEventListener('click', startGame);
+
+    var okBtn = document.getElementById('catch-modal-ok');
+    if (okBtn && !okBtn.dataset.bound) {
+      okBtn.dataset.bound = '1';
+      okBtn.addEventListener('click', closeWinModal);
+    }
+    var closeBtn = modal.querySelector('[data-close-modal]');
+    if (closeBtn && !closeBtn.dataset.catchBound) {
+      closeBtn.dataset.catchBound = '1';
+      closeBtn.addEventListener('click', closeWinModal);
+    }
+    if (!modal.dataset.catchOverlay) {
+      modal.dataset.catchOverlay = '1';
+      modal.addEventListener('pointerdown', function (e) {
+        if (e.target === modal) closeWinModal();
+      });
+    }
+
+    drawFrame(0);
+  }
+
+
+  function initCigarettePack() {
+    var pack = document.getElementById('cig-pack');
+    var sticksWrap = document.getElementById('cig-sticks');
+    var sticksRow = document.getElementById('cig-sticks-row');
+    var modal = document.getElementById('cig-modal');
+    if (!pack || !sticksWrap || !sticksRow || !modal || pack.dataset.bound) return;
+    pack.dataset.bound = '1';
+
+    var titleEl = document.getElementById('cig-modal-title');
+    var bodyEl = document.getElementById('cig-modal-body');
+    var emojiEl = document.getElementById('cig-modal-emoji');
+    var okBtn = document.getElementById('cig-modal-ok');
+    var sparkle = document.getElementById('cig-sparkle');
+    var readMap = readCigState();
+
+    CIG_NOTES.forEach(function (note, index) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cig-stick';
+      btn.dataset.id = note.id;
+      btn.setAttribute('aria-label', 'מקל אהבה ' + (index + 1));
+      btn.innerHTML = '<span class="cig-stick-visual" data-n="' + (index + 1) + '"></span>';
+      if (readMap[note.id]) btn.classList.add('is-smoked');
+
+      btn.addEventListener('click', function () {
+        if (!pack.classList.contains('is-open')) return;
+        btn.classList.add('is-pulling');
+        window.setTimeout(function () {
+          btn.classList.remove('is-pulling');
+          openCigNote(note, btn);
+        }, 320);
+      });
+      sticksRow.appendChild(btn);
+    });
+
+    pack.addEventListener('click', function () {
+      var open = pack.classList.toggle('is-open');
+      pack.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (open) {
+        sticksWrap.hidden = false;
+        requestAnimationFrame(function () {
+          sticksWrap.classList.add('is-visible');
+        });
+      } else {
+        sticksWrap.classList.remove('is-visible');
+        window.setTimeout(function () {
+          if (!pack.classList.contains('is-open')) sticksWrap.hidden = true;
+        }, 400);
+      }
+    });
+
+    function openCigNote(note, stickBtn) {
+      if (emojiEl) emojiEl.textContent = note.emoji;
+      if (titleEl) titleEl.textContent = note.title;
+      if (bodyEl) bodyEl.textContent = note.text;
+
+      modal.hidden = false;
+      modal.removeAttribute('hidden');
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(function () {
+        modal.classList.add('is-open');
+        burstSparkle();
+      });
+
+      stickBtn.classList.add('is-smoked');
+      readMap[note.id] = true;
+      writeCigState(readMap);
+    }
+
+    function closeCigModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      window.setTimeout(function () {
+        modal.hidden = true;
+        modal.style.display = '';
+        if (sparkle) sparkle.innerHTML = '';
+      }, 350);
+    }
+
+    function burstSparkle() {
+      if (!sparkle) return;
+      sparkle.innerHTML = '';
+      var symbols = ['✦', '✨', '❤', '✧'];
+      for (var i = 0; i < 14; i++) {
+        var s = document.createElement('span');
+        s.textContent = symbols[i % symbols.length];
+        s.style.color = i % 2 === 0 ? '#F3E2B5' : '#E8A0AB';
+        s.style.fontSize = (0.75 + Math.random() * 0.9) + 'rem';
+        s.style.setProperty('--sx', ((Math.random() - 0.5) * 200) + 'px');
+        s.style.setProperty('--sy', ((Math.random() - 0.5) * 160) + 'px');
+        s.style.animationDelay = (Math.random() * 0.2) + 's';
+        sparkle.appendChild(s);
+      }
+    }
+
+    if (okBtn && !okBtn.dataset.bound) {
+      okBtn.dataset.bound = '1';
+      okBtn.addEventListener('click', closeCigModal);
+    }
+    var closeBtn = modal.querySelector('[data-close-modal]');
+    if (closeBtn && !closeBtn.dataset.cigBound) {
+      closeBtn.dataset.cigBound = '1';
+      closeBtn.addEventListener('click', closeCigModal);
+    }
+    if (!modal.dataset.cigOverlay) {
+      modal.dataset.cigOverlay = '1';
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeCigModal();
+      });
+    }
+  }
+
+
+  function initPrescriptionBox() {
+    var grid = document.getElementById('rx-grid');
+    var modal = document.getElementById('rx-modal');
+    if (!grid || !modal || grid.dataset.bound) return;
+    grid.dataset.bound = '1';
+
+    var titleEl = document.getElementById('rx-modal-title');
+    var labelEl = document.getElementById('rx-modal-label');
+    var bodyEl = document.getElementById('rx-modal-body');
+    var sideEl = document.getElementById('rx-modal-side');
+    var emojiEl = document.getElementById('rx-modal-emoji');
+    var okBtn = document.getElementById('rx-modal-ok');
+    var confetti = document.getElementById('rx-confetti');
+
+    function openRxModal(key) {
+      var med = RX_MEDS[key];
+      if (!med) return;
+      if (emojiEl) emojiEl.textContent = med.emoji;
+      if (titleEl) titleEl.textContent = med.title;
+      if (labelEl) labelEl.textContent = med.label;
+      if (bodyEl) bodyEl.textContent = med.body;
+      if (sideEl) sideEl.textContent = med.side;
+
+      modal.hidden = false;
+      modal.removeAttribute('hidden');
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(function () {
+        modal.classList.add('is-open');
+        burstRxConfetti();
+      });
+    }
+
+    function closeRxModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      window.setTimeout(function () {
+        modal.hidden = true;
+        modal.style.display = '';
+        if (confetti) confetti.innerHTML = '';
+      }, 350);
+    }
+
+    function burstRxConfetti() {
+      if (!confetti) return;
+      confetti.innerHTML = '';
+      var symbols = ['❤', '✦', '💊', '✨', '💕'];
+      for (var i = 0; i < 16; i++) {
+        var s = document.createElement('span');
+        s.textContent = symbols[i % symbols.length];
+        s.style.color = i % 2 === 0 ? '#E8A0AB' : '#F3E2B5';
+        s.style.fontSize = (0.8 + Math.random() * 0.9) + 'rem';
+        s.style.setProperty('--rx', ((Math.random() - 0.5) * 220) + 'px');
+        s.style.setProperty('--ry', ((Math.random() - 0.5) * 180) + 'px');
+        s.style.animationDelay = (Math.random() * 0.25) + 's';
+        confetti.appendChild(s);
+      }
+    }
+
+    grid.querySelectorAll('[data-rx]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        openRxModal(btn.getAttribute('data-rx'));
+      });
+    });
+
+    if (okBtn && !okBtn.dataset.bound) {
+      okBtn.dataset.bound = '1';
+      okBtn.addEventListener('click', closeRxModal);
+    }
+
+    var closeBtn = modal.querySelector('[data-close-modal]');
+    if (closeBtn && !closeBtn.dataset.rxBound) {
+      closeBtn.dataset.rxBound = '1';
+      closeBtn.addEventListener('click', closeRxModal);
+    }
+
+    if (!modal.dataset.rxOverlay) {
+      modal.dataset.rxOverlay = '1';
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeRxModal();
+      });
+    }
+  }
+
+
+  function initPrivateCorner() {
+    var promisesBtn = document.getElementById('promises-btn');
+    var jokesBtn = document.getElementById('jokes-btn');
+    var promisesModal = document.getElementById('promises-modal');
+    var jokesModal = document.getElementById('jokes-modal');
+    var jokesVault = document.getElementById('jokes-vault');
+
+    if (jokesVault && !jokesVault.dataset.ready) {
+      jokesVault.dataset.ready = '1';
+      renderJokeCategory(jokesVault, '🤫 בדיחות פנימיות / זיכרונות שלנו', PRIVATE_JOKES.inside, 'inside');
+      renderJokeCategory(jokesVault, '💇 בדיחות בלונדיניות', PRIVATE_JOKES.blonde, 'blonde');
+    }
+
+    function openModal(modal) {
+      if (!modal) return;
+      modal.hidden = false;
+      modal.removeAttribute('hidden');
+      modal.setAttribute('aria-hidden', 'false');
+      // force display in case CSS [hidden] fights us
+      modal.style.display = 'flex';
+      requestAnimationFrame(function () {
+        modal.classList.add('is-open');
+      });
+    }
+
+    function closeModal(modal) {
+      if (!modal) return;
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      window.setTimeout(function () {
+        modal.hidden = true;
+        modal.style.display = '';
+      }, 350);
+    }
+
+    function bindOpen(btn, modal) {
+      if (!btn || btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        openModal(modal);
+      });
+    }
+
+    bindOpen(promisesBtn, promisesModal);
+    bindOpen(jokesBtn, jokesModal);
+
+    document.querySelectorAll('[data-close-modal]').forEach(function (btn) {
+      if (btn.dataset.boundClose) return;
+      btn.dataset.boundClose = '1';
+      btn.addEventListener('click', function () {
+        closeModal(btn.closest('.modal-overlay'));
+      });
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(function (overlay) {
+      if (overlay.dataset.boundOverlay) return;
+      overlay.dataset.boundOverlay = '1';
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) closeModal(overlay);
+      });
+    });
+
+    if (!window.__privateEscBound) {
+      window.__privateEscBound = true;
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          document.querySelectorAll('.modal-overlay.is-open').forEach(closeModal);
+        }
+      });
+    }
+  }
 
 
   function initPersonalToggle() {
@@ -1007,6 +2265,92 @@
     });
   }
 
+
+  // ——— Panel navigation (light, no endless scroll) ———
+  var PANEL_MAP = {
+    home: 'home-menu',
+    letter: 'letter-section',
+    quiz: 'quiz-section',
+    story: 'story-section',
+    vouchers: 'sec-vouchers',
+    private: 'sec-private',
+    prescription: 'sec-prescription',
+    cigpack: 'sec-cigpack',
+    wheel: 'sec-wheel',
+    catch: 'sec-catch',
+    personal: 'sec-personal'
+  };
+
+  function showPanel(name) {
+    var key = name || 'home';
+    if (!PANEL_MAP[key]) key = 'home';
+    body.classList.add('site-panels');
+
+    var hub = document.getElementById('main-hub');
+    if (hub) {
+      hub.hidden = false;
+      hub.classList.add('is-visible');
+    }
+
+    // ensure all mapped nodes are visible to the panel system (not [hidden])
+    Object.keys(PANEL_MAP).forEach(function (k) {
+      var el = document.getElementById(PANEL_MAP[k]);
+      if (!el) return;
+      el.hidden = false;
+      el.removeAttribute('hidden');
+      el.style.display = '';
+      el.classList.remove('is-active-panel');
+      if (k === 'story') el.classList.add('is-visible', 'is-inline');
+      if (k === 'quiz') {
+        el.classList.remove('is-leaving');
+      }
+      if (k === 'letter') {
+        el.classList.add('is-entering', 'is-journey');
+        el.classList.remove('is-leaving');
+      }
+    });
+
+    var home = document.getElementById('home-menu');
+    if (home) {
+      home.hidden = false;
+      home.removeAttribute('hidden');
+    }
+
+    var active = document.getElementById(PANEL_MAP[key]);
+    if (active) {
+      active.classList.add('is-active-panel');
+      active.scrollTop = 0;
+    }
+
+    var nav = document.getElementById('app-nav');
+    if (nav) {
+      nav.querySelectorAll('.app-nav-btn').forEach(function (b) {
+        b.classList.toggle('is-active', b.getAttribute('data-panel') === key);
+      });
+    }
+
+    if (key === 'quiz' && quizSection) {
+      quizSection.classList.remove('is-collapsed');
+      var badge = document.getElementById('quiz-done-badge');
+      if (badge) badge.style.display = 'none';
+      if (!quizSection.querySelector('.quiz-question') && typeof startQuiz === 'function') {
+        quizLocked = false;
+        startQuiz();
+      }
+    }
+
+    if (key === 'personal' && typeof initPersonalToggle === 'function') {
+      initPersonalToggle();
+    }
+    if (key === 'catch' && typeof initCatchTheVibe === 'function') initCatchTheVibe();
+    if (key === 'wheel' && typeof initFunWheel === 'function') initFunWheel();
+
+    window.setTimeout(function () {
+      window.dispatchEvent(new Event('resize'));
+    }, 80);
+  }
+
+
   function showAppNav() {
     const nav = document.getElementById('app-nav');
     if (!nav) return;
@@ -1023,43 +2367,20 @@
     const nav = document.getElementById('app-nav');
     if (!nav || nav.dataset.bound) return;
     nav.dataset.bound = '1';
-    nav.querySelectorAll('[data-scroll]').forEach(function (btn) {
+
+    function bindPanelBtn(btn) {
       btn.addEventListener('click', function () {
-        const id = btn.getAttribute('data-scroll');
-        const hub = document.getElementById('main-hub');
-        if (hub) {
-          hub.hidden = false;
-          hub.classList.add('is-visible');
-        }
-        if (letterSection) {
-          letterSection.hidden = false;
-          letterSection.style.display = '';
-        }
-        if (storySection) {
-          storySection.hidden = false;
-          storySection.classList.add('is-visible', 'is-inline');
-        }
-        const personal = document.getElementById('sec-personal');
-        if (personal) personal.hidden = false;
-        if (quizSection) quizSection.hidden = false;
-
-        // If quiz was collapsed and user opens it, expand again
-        if (id === 'sec-quiz' && quizSection) {
-          quizSection.classList.remove('is-collapsed');
-          quizLocked = false;
-          const badge = document.getElementById('quiz-done-badge');
-          if (badge) badge.style.display = 'none';
-          if (!quizSection.querySelector('.quiz-question')) startQuiz();
-        }
-
-        const el = document.getElementById(id);
-        if (!el) return;
-        nav.querySelectorAll('.app-nav-btn').forEach(function (b) {
-          b.classList.remove('is-active');
-        });
-        btn.classList.add('is-active');
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const name = btn.getAttribute('data-panel');
+        if (name) showPanel(name);
       });
+    }
+
+    nav.querySelectorAll('[data-panel]').forEach(bindPanelBtn);
+
+    document.querySelectorAll('.home-card[data-panel]').forEach(function (btn) {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      bindPanelBtn(btn);
     });
   }
 
@@ -1089,10 +2410,7 @@
     initScrollReveals();
     initParallax();
 
-    window.setTimeout(function () {
-      const target = document.getElementById('story-section');
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 60);
+    if (typeof showPanel === 'function') showPanel('story');
   }
 
 

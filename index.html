@@ -38,15 +38,20 @@
   <div class="ambient ambient-2" aria-hidden="true"></div>
   <div class="ambient ambient-3" aria-hidden="true"></div>
 
-  <!-- App Navigation (Stage 4+ only) -->
+  <!-- App Navigation -->
   <nav id="app-nav" class="app-nav" hidden aria-label="ניווט ראשי">
     <div class="app-nav-inner">
-      <button type="button" class="app-nav-btn" data-scroll="sec-letter">המכתב הסודי</button>
-      <button type="button" class="app-nav-btn" data-scroll="sec-quiz">החידון</button>
-      <button type="button" class="app-nav-btn" data-scroll="story-section">הסיפור שלנו</button>
-      <button type="button" class="app-nav-btn" data-scroll="sec-vouchers">כרטיסי הגירוד</button>
-      <button type="button" class="app-nav-btn" data-scroll="sec-private">הפינה הפרטית</button>
-      <button type="button" class="app-nav-btn" data-scroll="sec-personal">אזור אישי</button>
+      <button type="button" class="app-nav-btn is-active" data-panel="home">בית</button>
+      <button type="button" class="app-nav-btn" data-panel="letter">המכתב</button>
+      <button type="button" class="app-nav-btn" data-panel="quiz">החידון</button>
+      <button type="button" class="app-nav-btn" data-panel="story">הסיפור</button>
+      <button type="button" class="app-nav-btn" data-panel="vouchers">שוברים</button>
+      <button type="button" class="app-nav-btn" data-panel="private">פינה פרטית</button>
+      <button type="button" class="app-nav-btn" data-panel="prescription">תרופות</button>
+      <button type="button" class="app-nav-btn" data-panel="cigpack">סיגריות</button>
+      <button type="button" class="app-nav-btn" data-panel="wheel">גלגל המזל</button>
+      <button type="button" class="app-nav-btn" data-panel="catch">תפוס ווייב</button>
+      <button type="button" class="app-nav-btn" data-panel="personal">אזור אישי</button>
     </div>
   </nav>
 
@@ -113,7 +118,7 @@
 
   <!-- SECTION 1.5: Quiz -->
   <!-- SECTION: Unlocking Love Letter -->
-  <section id="letter-section" class="section-screen letter-section journey-section" aria-label="המכתב" hidden>
+  <section id="letter-section" class="section-screen letter-section journey-section app-panel" data-panel="letter" aria-label="המכתב" hidden>
     <div class="letter-scene" id="letter-scene">
       <div id="sec-letter" class="nav-anchor"></div>
       <!-- Closed envelope -->
@@ -139,6 +144,12 @@
           <span class="ornament-diamond"></span>
           <span class="ornament-line"></span>
         </div>
+        <div class="letter-boom-wrap" id="letter-boom-wrap" hidden>
+          <button type="button" class="letter-boom-btn" id="letter-boom-btn">
+            הכל בבום ✨
+          </button>
+          <p class="letter-boom-hint">לא רוצה לחכות? לחצי והכל יופיע מיד</p>
+        </div>
         <h2 class="letter-title font-serif" id="letter-title"></h2>
         <div class="letter-body" id="letter-body"></div>
         <div class="letter-ornament letter-ornament-bottom" aria-hidden="true">
@@ -149,18 +160,41 @@
       
         <button type="button" class="continue-story-btn letter-continue-btn" id="continue-story-btn" hidden>
           <span class="btn-shimmer" aria-hidden="true"></span>
-          <span>להמשך הסיפור והאזור האישי ✨</span>
+          <span>חזרה לבית ✨</span>
         </button>
       </article>
 
       <!-- Post-letter extras (shown after letter opens) -->
       <div id="letter-confetti" class="letter-confetti" aria-hidden="true"></div>
+    </div>
+  </section>
+
+
+  <!-- Home Menu -->
+  <section id="home-menu" class="home-menu app-panel is-active-panel" data-panel="home" hidden aria-label="תפריט ראשי">
+    <div class="home-menu-inner">
+      <p class="home-kicker">ברוכה הבאה</p>
+      <h2 class="home-title font-serif">עולם קטן רק שלנו</h2>
+      <p class="home-sub">בחרי לאן ללכת — בלי גלילה אינסופית, רק קליק קליל</p>
+      <div class="home-grid">
+        <button type="button" class="home-card" data-panel="letter"><span class="home-card-emoji">💌</span><span class="home-card-label">המכתב הסודי</span></button>
+        <button type="button" class="home-card" data-panel="quiz"><span class="home-card-emoji">💍</span><span class="home-card-label">החידון</span></button>
+        <button type="button" class="home-card" data-panel="story"><span class="home-card-emoji">📖</span><span class="home-card-label">הסיפור שלנו</span></button>
+        <button type="button" class="home-card" data-panel="vouchers"><span class="home-card-emoji">🎁</span><span class="home-card-label">שוברים</span></button>
+        <button type="button" class="home-card" data-panel="private"><span class="home-card-emoji">🤫</span><span class="home-card-label">פינה פרטית</span></button>
+        <button type="button" class="home-card" data-panel="prescription"><span class="home-card-emoji">💊</span><span class="home-card-label">תיבת תרופות</span></button>
+        <button type="button" class="home-card" data-panel="cigpack"><span class="home-card-emoji">🚬</span><span class="home-card-label">חפיסת סיגריות</span></button>
+        <button type="button" class="home-card" data-panel="wheel"><span class="home-card-emoji">🎡</span><span class="home-card-label">גלגל המזל</span></button>
+        <button type="button" class="home-card" data-panel="catch"><span class="home-card-emoji">☕</span><span class="home-card-label">תפוס את הווייב</span></button>
+        <button type="button" class="home-card" data-panel="personal"><span class="home-card-emoji">👤</span><span class="home-card-label">אזור אישי</span></button>
+      </div>
+    </div>
   </section>
 
   <!-- STAGE 4: Main Hub -->
   <div id="main-hub" class="main-hub" hidden>
     <div class="hub-stack">
-<section id="quiz-section" id="quiz-section" class="quiz-section quiz-hub-panel" aria-label="חידון הזוגיות" hidden>
+<section id="quiz-section" class="quiz-section quiz-hub-panel app-panel" data-panel="quiz" aria-label="חידון הזוגיות" hidden>
     <div id="sec-quiz" class="nav-anchor"></div>
     <div class="quiz-shell">
       <div class="quiz-card glass" id="quiz-card">
@@ -202,7 +236,7 @@
   
 
       <!-- SECTION 2: Our Story -->
-  <section id="story-section" class="story-section journey-section" aria-label="הסיפור שלנו" hidden>
+  <section id="story-section" class="story-section journey-section app-panel" data-panel="story" aria-label="הסיפור שלנו" hidden>
     <header class="story-hero">
       <div class="story-hero-inner" data-parallax="0.15">
         <p class="story-eyebrow reveal-story">שנה שלמה · לב אחד</p>
@@ -213,8 +247,7 @@
           מהודעה אחת בפייסבוק — ועד לרגע הזה. כל צעד, כל חיוך, כל זיכרון.
         </p>
         <div class="scroll-hint reveal-story" aria-hidden="true">
-          <span>גללי למטה</span>
-          <span class="scroll-arrow"></span>
+          <span>הסיפור שלנו</span>
         </div>
       </div>
     </header>
@@ -315,7 +348,10 @@
             </button>
           </div>
         </section>
-      <section class="extra-block glass-soft reveal-extra" id="sec-vouchers" aria-label="שוברים מיוחדים">
+      <!-- story-panel-end -->
+      </section>
+
+<section class="extra-block glass-soft reveal-extra app-panel" id="sec-vouchers" data-panel="vouchers" aria-label="שוברים מיוחדים">
           <p class="extra-eyebrow">מתנה אחת</p>
           <h3 class="extra-title font-serif">שוברים מיוחדים בשבילך 🎁</h3>
           <p class="extra-sub vouchers-intro">בחרי שובר אחד, גרדי אותו וצלמי לי מסך כדי לממש!</p>
@@ -330,7 +366,7 @@
           </div>
 
         </section>
-      <section class="extra-block glass-soft private-corner reveal-extra" id="sec-private" aria-label="הפינה הפרטית שלנו">
+      <section class="extra-block glass-soft private-corner reveal-extra app-panel" id="sec-private" data-panel="private" aria-label="הפינה הפרטית שלנו">
           <p class="extra-eyebrow">רק בינינו</p>
           <h3 class="extra-title font-serif">הפינה הפרטית שלנו</h3>
           <p class="extra-sub private-intro">שלושה מקומות קטנים ששמורים רק לנו</p>
@@ -361,7 +397,135 @@
           </div>
         </section>
       
-      <section id="sec-personal" class="hub-panel glass-panel" aria-label="אזור אישי">
+      
+      <!-- Love Prescription Box -->
+      <section id="sec-prescription" class="extra-block glass-soft prescription-box reveal-extra app-panel" data-panel="prescription" aria-label="תיבת תרופות רגשית">
+        <p class="extra-eyebrow">מרשם רגשי</p>
+        <h3 class="extra-title font-serif">תיבת התרופות הרגשית 💊</h3>
+        <p class="extra-sub prescription-intro">
+          תופעות לוואי אפשריות: חיוך בלתי נשלט, פרפרים בבטן, ורצון לחבק מיד.
+          <br />נטילה לפי הצורך — ובאהבה מלאה.
+        </p>
+
+        <div class="rx-grid" id="rx-grid">
+          <button type="button" class="rx-pill" data-rx="stress">
+            <span class="rx-emoji" aria-hidden="true">💊</span>
+            <span class="rx-name">כדור לחץ</span>
+            <span class="rx-dose">1 × לפי הצורך</span>
+          </button>
+          <button type="button" class="rx-pill" data-rx="miss">
+            <span class="rx-emoji" aria-hidden="true">💓</span>
+            <span class="rx-name">ויטמין געגוע</span>
+            <span class="rx-dose">בוקר וערב</span>
+          </button>
+          <button type="button" class="rx-pill" data-rx="bandaid">
+            <span class="rx-emoji" aria-hidden="true">🩹</span>
+            <span class="rx-name">פלסטר לריב</span>
+            <span class="rx-dose">מיד אחרי ויכוח</span>
+          </button>
+          <button type="button" class="rx-pill" data-rx="syrup">
+            <span class="rx-emoji" aria-hidden="true">🧴</span>
+            <span class="rx-name">סירופ מתוק</span>
+            <span class="rx-dose">מנה כפולה מותרת</span>
+          </button>
+        </div>
+
+        <p class="rx-footer-note">רופא מטפל: הלב שלך · בית מרקחת: אנחנו</p>
+      </section>
+
+      <!-- Romantic Cigarette Pack -->
+      <section id="sec-cigpack" class="extra-block glass-soft cig-pack-section reveal-extra app-panel" data-panel="cigpack" aria-label="חפיסת סיגריות זוגית">
+        <p class="extra-eyebrow">מוצר מוגבל · לא למכירה</p>
+        <h3 class="extra-title font-serif">חפיסת הסיגריות הזוגית 🚬</h3>
+        <p class="extra-sub cig-intro">לחצי על החפיסה כדי לפתוח. בפנים מחכות 5 מנות אהבה — לא לעישון, רק ללב.</p>
+
+        <div class="cig-stage">
+          <button type="button" class="cig-pack" id="cig-pack" aria-expanded="false" aria-controls="cig-sticks">
+            <span class="cig-pack-lid" aria-hidden="true">
+              <span class="cig-brand font-serif">OURS</span>
+              <span class="cig-brand-sub">Romantic Blend</span>
+            </span>
+            <span class="cig-pack-body" aria-hidden="true">
+              <span class="cig-foil"></span>
+              <span class="cig-warning">
+                <strong>אזהרה:</strong>
+                השימוש במוצר זה עלול לגרום להתאהבות יתר ושיחות מרפסת עד השעות הקטנות.
+              </span>
+            </span>
+            <span class="cig-pack-hint" id="cig-pack-hint">לחצי לפתיחה ✦</span>
+          </button>
+
+          <div class="cig-sticks" id="cig-sticks" hidden>
+            <p class="cig-sticks-label">בחרי מקל אהבה</p>
+            <div class="cig-sticks-row" id="cig-sticks-row">
+              <!-- filled by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Late Night Wheel of Fun -->
+      <section id="sec-wheel" class="extra-block glass-soft wheel-section reveal-extra app-panel" data-panel="wheel" aria-label="גלגל המזל הזוגי">
+        <p class="extra-eyebrow">משחק לילה מאוחר</p>
+        <h3 class="extra-title font-serif">גלגל המזל הזוגי 🎡</h3>
+        <p class="extra-sub wheel-intro">
+          סובבו את הגלגל — והמשימה שתצא חובה על <strong>שניכם</strong>. עכשיו. בבית. בלי תירוצים.
+        </p>
+
+        <div class="wheel-stage">
+          <div class="wheel-pointer" aria-hidden="true"></div>
+          <div class="wheel-wrap">
+            <canvas id="wheel-canvas" width="320" height="320" aria-label="גלגל משימות"></canvas>
+            <button type="button" class="wheel-spin-btn" id="wheel-spin-btn">
+              <span>סובב</span>
+              <small>SPIN</small>
+            </button>
+          </div>
+        </div>
+        <p class="wheel-hint" id="wheel-hint">לחצו על הכפתור במרכז והתחילו את הכיף</p>
+      </section>
+
+
+
+
+
+
+      <!-- Catch the Vibe -->
+      <section id="sec-catch" class="extra-block glass-soft catch-section reveal-extra app-panel" data-panel="catch" aria-label="תפוס את הקפה והלבבות">
+        <p class="extra-eyebrow">ארקייד זוגי</p>
+        <h3 class="extra-title font-serif">תפוס את הקפה והלבבות ☕💖</h3>
+        <p class="extra-sub catch-intro">
+          תפסי פריטים טובים, תברחי מאיסור העישון — ותגיעי ל־<strong>10 נקודות</strong> בשביל הפרס.
+        </p>
+
+        <div class="catch-hud" aria-live="polite">
+          <div class="catch-score-pill">
+            <span class="catch-score-label">ניקוד</span>
+            <strong id="catch-score">0</strong>
+            <span class="catch-score-max">/ 10</span>
+          </div>
+          <div class="catch-legend" aria-hidden="true">
+            <span>☕💖🤗 +1</span>
+            <span>🚬 +2</span>
+            <span>🚫🚬 −1</span>
+          </div>
+        </div>
+
+        <div class="catch-stage">
+          <canvas id="catch-canvas" width="420" height="520" aria-label="משחק תפוס את הווייב"></canvas>
+          <div class="catch-overlay" id="catch-overlay">
+            <p class="catch-overlay-title font-serif">Catch the Vibe</p>
+            <p class="catch-overlay-sub">הזיזי את הכוס · תפסי את האהבה</p>
+            <button type="button" class="catch-start-btn" id="catch-start-btn">
+              <span>התחל משחק</span>
+              <small>START</small>
+            </button>
+          </div>
+        </div>
+        <p class="catch-hint">גררי עם האצבע / עכבר · חיצים ← → · מטרה: 10 נקודות</p>
+      </section>
+
+<section id="sec-personal" class="hub-panel glass-panel app-panel" data-panel="personal" aria-label="אזור אישי">
         <p class="extra-eyebrow">רק שלך</p>
         <h3 class="extra-title font-serif">אזור אישי</h3>
         <button type="button" class="personal-toggle-btn" id="personal-toggle" aria-expanded="false" aria-controls="personal-panel">
@@ -404,25 +568,6 @@
 
     </div>
   </div>
-
-
-
-  
-
-    <footer class="story-closing reveal-story">
-      <div class="closing-ornament" aria-hidden="true">
-        <span class="ornament-line"></span>
-        <span class="ornament-diamond"></span>
-        <span class="ornament-line"></span>
-      </div>
-      <p class="closing-text font-serif">
-        אביטל יקרה,<br />
-        תודה שאת בוחרת בי כל יום מחדש.<br />
-        אוהב אותך — לשנה הבאה, ולתמיד.
-      </p>
-      <p class="closing-signature">— שלך</p>
-    </footer>
-  </section>
 <!-- Promises Modal -->
   <div class="modal-overlay" id="promises-modal" hidden aria-hidden="true">
     <div class="modal-card glass" role="dialog" aria-modal="true" aria-labelledby="promises-modal-title">
@@ -458,6 +603,81 @@
       <div class="jokes-vault" id="jokes-vault">
         <!-- filled by JS -->
       </div>
+    </div>
+  </div>
+
+
+  <!-- Prescription Modal -->
+  <div class="modal-overlay rx-modal-overlay" id="rx-modal" hidden aria-hidden="true">
+    <div class="modal-card glass rx-modal-card" role="dialog" aria-modal="true" aria-labelledby="rx-modal-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="סגירה">×</button>
+      <div class="rx-modal-badge" aria-hidden="true">Rx</div>
+      <div class="ornament" aria-hidden="true">
+        <span class="ornament-line"></span>
+        <span class="ornament-diamond"></span>
+        <span class="ornament-line"></span>
+      </div>
+      <p class="rx-modal-emoji" id="rx-modal-emoji">💊</p>
+      <h3 class="modal-title font-serif" id="rx-modal-title">מרשם</h3>
+      <p class="rx-modal-label" id="rx-modal-label">הוראות שימוש</p>
+      <p class="rx-modal-body" id="rx-modal-body"></p>
+      <p class="rx-modal-side" id="rx-modal-side"></p>
+      <button type="button" class="rx-modal-ok" id="rx-modal-ok">קיבלתי · מרגישה טוב יותר 💕</button>
+      <div class="rx-confetti" id="rx-confetti" aria-hidden="true"></div>
+    </div>
+  </div>
+
+
+  <!-- Cigarette Note Modal -->
+  <div class="modal-overlay cig-modal-overlay" id="cig-modal" hidden aria-hidden="true">
+    <div class="modal-card glass cig-modal-card" role="dialog" aria-modal="true" aria-labelledby="cig-modal-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="סגירה">×</button>
+      <div class="cig-sparkle" id="cig-sparkle" aria-hidden="true"></div>
+      <div class="ornament" aria-hidden="true">
+        <span class="ornament-line"></span>
+        <span class="ornament-diamond"></span>
+        <span class="ornament-line"></span>
+      </div>
+      <p class="cig-modal-emoji" id="cig-modal-emoji">🚬</p>
+      <h3 class="modal-title font-serif" id="cig-modal-title">פתק מהחפיסה</h3>
+      <p class="cig-modal-body" id="cig-modal-body"></p>
+      <button type="button" class="cig-modal-ok" id="cig-modal-ok">סגרי · נשמר בזיכרון 💫</button>
+    </div>
+  </div>
+
+
+  <!-- Wheel Mission Modal -->
+  <div class="modal-overlay wheel-modal-overlay" id="wheel-modal" hidden aria-hidden="true">
+    <div class="modal-card glass wheel-modal-card" role="dialog" aria-modal="true" aria-labelledby="wheel-modal-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="סגירה">×</button>
+      <div class="wheel-modal-confetti" id="wheel-modal-confetti" aria-hidden="true"></div>
+      <div class="ornament" aria-hidden="true">
+        <span class="ornament-line"></span>
+        <span class="ornament-diamond"></span>
+        <span class="ornament-line"></span>
+      </div>
+      <p class="wheel-modal-kicker">המשימה לשניכם עכשיו!</p>
+      <p class="wheel-modal-emoji" id="wheel-modal-emoji">🎯</p>
+      <h3 class="modal-title font-serif" id="wheel-modal-title">משימה</h3>
+      <p class="wheel-modal-body" id="wheel-modal-body"></p>
+      <button type="button" class="wheel-modal-ok" id="wheel-modal-ok">בוצע! 🎉</button>
+    </div>
+  </div>
+
+
+  <!-- Catch Win Modal -->
+  <div class="modal-overlay catch-modal-overlay" id="catch-modal" hidden aria-hidden="true">
+    <div class="modal-card glass catch-modal-card" role="dialog" aria-modal="true" aria-labelledby="catch-modal-title">
+      <button type="button" class="modal-close" data-close-modal aria-label="סגירה">×</button>
+      <div class="catch-modal-confetti" id="catch-modal-confetti" aria-hidden="true"></div>
+      <div class="ornament" aria-hidden="true">
+        <span class="ornament-line"></span>
+        <span class="ornament-diamond"></span>
+        <span class="ornament-line"></span>
+      </div>
+      <h3 class="modal-title font-serif" id="catch-modal-title">🎉 ניצחת במשחק!</h3>
+      <p class="catch-modal-body" id="catch-modal-body">הפרס שלך: חיבוק ענק ונשיקה מלטפת ממני עכשיו! 😘🤗</p>
+      <button type="button" class="catch-modal-ok" id="catch-modal-ok">לקבלת הפרס (נקה מסך)</button>
     </div>
   </div>
 
